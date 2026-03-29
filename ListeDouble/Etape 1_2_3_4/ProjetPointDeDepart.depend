@@ -1,0 +1,50 @@
+# depslib dependency file v1.0
+1673884709 source:c:\users\yanni\documents\_2022-2023\prog c\projet point de depart codeblock\main.c
+	<stdio.h>
+	<stdlib.h>
+	"mylib.h"
+
+1673884532 c:\users\yanni\documents\_2022-2023\prog c\projet point de depart codeblock\mylib.h
+
+1674123100 source:c:\users\ydegardi\downloads\projet_point_de_depart_codeblock\projet_point_de_depart_codeblock\main.c
+	<stdio.h>
+	<stdlib.h>
+	"mylib.h"
+
+1674123100 c:\users\ydegardi\downloads\projet_point_de_depart_codeblock\projet_point_de_depart_codeblock\mylib.h
+
+1674123100 source:c:\users\ydegardi\downloads\projet_point_de_depart_codeblock\projet_point_de_depart_codeblock\mylib.c
+	<stdio.h>
+	<stdlib.h>
+
+1772710074 source:c:\users\etusfa\desktop\etape 2\mylib.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"mylib.h"
+	"listeDouble.h"
+
+1772710165 c:\users\etusfa\desktop\etape 2\mylib.h
+	"listeDouble.h"
+
+1772710092 source:c:\users\etusfa\desktop\etape 2\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"mylib.h"
+	"listeDouble.h"
+
+1772705698 source:c:\users\etusfa\desktop\etape 2\listedouble.c
+	<stdio.h>
+	<stdlib.h>
+	"listeDouble.h"
+
+1770889724 c:\users\etusfa\desktop\etape 2\listedouble.h
+	<stdbool.h>
+
+1772704502 source:c:\users\etusfa\desktop\etape 2\mainliste.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	"listeDouble.h"
+

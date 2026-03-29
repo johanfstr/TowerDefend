@@ -1,0 +1,97 @@
+# depslib dependency file v1.0
+1616437721 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\liste doublement chainée\listedouble\listedouble.c
+	<stdio.h>
+	<stdlib.h>
+	"listeDouble.h"
+
+1616437763 d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\liste doublement chainée\listedouble\listedouble.h
+	<stdbool.h>
+
+1616437754 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\liste doublement chainée\listedouble\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	"listeDouble.h"
+
+1616948094 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\tri liste sans déplacer les données\listedouble.c
+	<stdio.h>
+	<stdlib.h>
+	"listeDouble.h"
+
+1617177723 d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\tri liste sans déplacer les données\listedouble.h
+	<stdbool.h>
+
+1616953250 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\tri liste sans déplacer les données\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	"listeDouble.h"
+
+1617195651 source:c:\users\yanni\documents\_2020-2021\l2 projet de prog\etape 4 tri liste de struct\etape 4 tri liste de struct\types.c
+	<stdlib.h>
+	<stdio.h>
+	<stdbool.h>
+	<string.h>
+	"types.h"
+	"utils.h"
+
+1617195651 c:\users\yanni\documents\_2020-2021\l2 projet de prog\etape 4 tri liste de struct\etape 4 tri liste de struct\types.h
+	<stdbool.h>
+
+1617195651 c:\users\yanni\documents\_2020-2021\l2 projet de prog\etape 4 tri liste de struct\etape 4 tri liste de struct\utils.h
+
+1617195651 source:c:\users\yanni\documents\_2020-2021\l2 projet de prog\etape 4 tri liste de struct\etape 4 tri liste de struct\utils.c
+	<stdlib.h>
+	<stdio.h>
+	<stdbool.h>
+
+1617200056 source:c:\users\yanni\documents\_2020-2021\l2 projet de prog\etape 4 tri liste de struct\etape 4 tri liste de struct\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	"listeDouble.h"
+
+1617198007 c:\users\yanni\documents\_2020-2021\l2 projet de prog\etape 4 tri liste de struct\etape 4 tri liste de struct\listedouble.h
+	<stdbool.h>
+	"types.h"
+
+1617200298 source:c:\users\yanni\documents\_2020-2021\l2 projet de prog\etape 4 tri liste de struct\etape 4 tri liste de struct\listedouble.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"listeDouble.h"
+
+1617200300 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\etape 4 tri liste de struct\listedouble.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"listeDouble.h"
+
+1617198008 d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\etape 4 tri liste de struct\listedouble.h
+	<stdbool.h>
+	"types.h"
+
+1617206969 d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\etape 4 tri liste de struct\types.h
+	<stdbool.h>
+
+1617200388 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\etape 4 tri liste de struct\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	"listeDouble.h"
+
+1617195652 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\etape 4 tri liste de struct\types.c
+	<stdlib.h>
+	<stdio.h>
+	<stdbool.h>
+	<string.h>
+	"types.h"
+	"utils.h"
+
+1617195652 d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\etape 4 tri liste de struct\utils.h
+
+1617195652 source:d:\1yannick\_1_sfa\_2020-2021\semestre 2\l2 projet de prog\etape 4 tri liste de struct\utils.c
+	<stdlib.h>
+	<stdio.h>
+	<stdbool.h>
+
