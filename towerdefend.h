@@ -72,13 +72,16 @@ Tunite *creeGargouille(int posx, int posy);
 Tunite *creeDragon(int posx, int posy);
 Tunite *creeChevalier(int posx, int posy);
 
-TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde, TuniteDuJeu nouvelleUnite);
+TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde);
 TListePlayer creerTour(TplateauJeu jeu,int nb_tour, TuniteDuJeu nouvelleUnite);
 void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde);
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite);
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
 void placer_Tour(TplateauJeu jeu , int **tabParcours,TListePlayer unite_tour);
 void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible, TplateauJeu jeu);
+void tri_selection(TListePlayer *UniteAttaquante, int taille);
+void affiche_liste (TListePlayer player);
+int tailleListe(TListePlayer player);
 
 
 

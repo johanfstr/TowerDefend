@@ -51,7 +51,7 @@ void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite)
     {
         return;
     }
-    
+
     TListePlayer courant = *player;
     TListePlayer precedent = NULL;
 
@@ -75,41 +75,12 @@ void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite)
             // Sinon, on réajuste le pointeur du précédent
             precedent->suiv = courant->suiv;
         }
-        
+
         // Libérer la mémoire
         free(courant->pdata);
         free(courant);
     }
 }
-
-/*/
-void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite)
-{
-    if (player == NULL || *player == NULL || UniteDetruite == NULL)
-        return;
-
-    TListePlayer courant = *player;
-    TListePlayer precedent = NULL;
-
-    while (courant != NULL) {
-        if (courant->pdata == UniteDetruite) {
-            // On enlève le noeud
-            if (precedent == NULL) {
-                // suppression du premier élément
-                *player = courant->suiv;
-            } else {
-                precedent->suiv = courant->suiv;
-            }
-
-            free(courant->pdata);
-            free(courant);
-            return; // on sort après suppression
-        }
-
-        precedent = courant;
-        courant = courant->suiv;
-    }
-}*/
 
 bool tourRoiDetruite(TListePlayer player){
     while (player != NULL){
@@ -129,8 +100,8 @@ bool tourRoiDetruite(TListePlayer player){
 
 TListePlayer creerTour(TplateauJeu jeu, int nb_tour, TuniteDuJeu nouvelleUnite)
 {
-   TListePlayer nouv=(TListePlayer)malloc(sizeof(struct T_cell));
-    nouv= NULL;
+   //TListePlayer nouv=(TListePlayer)malloc(sizeof(struct T_cell));
+    TListePlayer nouv= NULL;
     for (int i = 0 ; i<nb_tour ; i++)
     {
         if (nouvelleUnite==tourAir)
@@ -160,37 +131,30 @@ TListePlayer creerTour(TplateauJeu jeu, int nb_tour, TuniteDuJeu nouvelleUnite)
     }
     return nouv;
 }
-TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde, TuniteDuJeu nouvelleUnite){
-    TListePlayer nouv=(TListePlayer)malloc(sizeof(struct T_cell));
-    nouv= NULL;
+TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde){
+    TListePlayer nouv = NULL;
     for (int i = 0; i < nb_horde; i++){
-        if (nouvelleUnite == dragon){
-            Tunite *u = creeDragon(x, y);
-            u->indiceParcours = i;
-            AjouterUnite(&nouv, u);
-        }
-        else if (nouvelleUnite == gargouille){
-            Tunite *u = creeGargouille(x, y);
-            u->indiceParcours = i;
-            AjouterUnite(&nouv, u);
-        }
-        else if (nouvelleUnite == chevalier){
-            Tunite *u = creeChevalier(x, y);
-            u->indiceParcours = i;
-            AjouterUnite(&nouv, u);
-        }
-        else if (nouvelleUnite == archer){
-            Tunite *u = creeArcher(x, y);
-            u->indiceParcours = i;
-            AjouterUnite(&nouv, u);
-        }
+        int rand_unite = rand()%4;
+        Tunite *u;
+        int PosY = y - i;
+        if (rand_unite == 0){
+            u = creeDragon(x, PosY);
+        } else if (rand_unite == 1){
+            u = creeGargouille(x, PosY);
+        } else if (rand_unite == 2){
+            u = creeChevalier(x, PosY);
+        } else {
+            u = creeArcher(x, PosY);
+    }
+    u->indiceParcours = i;
+    AjouterUnite(&nouv, u);
+    }
+    tri_selection(&nouv, nb_horde);
 
-    }
-    TListePlayer tmp = nouv;
-    while (tmp != NULL){
-        jeu[tmp->pdata->posX][tmp->pdata->posY] = tmp->pdata;
-        tmp = tmp->suiv;
-    }
+    printf("horde creee : \n");
+    TListePlayer tmp = nouv;;
+    affiche_liste(tmp);
+    PositionnePlayerOnPlateau(nouv, jeu);
     return nouv;
 }
 
@@ -265,7 +229,7 @@ void initPlateauAvecNULL(TplateauJeu jeu,int largeur, int hauteur, int** tabParc
 
 */
 /*
-void ecritCheminVersleHaut  : permet d'initilaiser le tab chemin de distance cases (avec des coord x y) dans une direction,   partir d'un point x y donn 
+void ecritCheminVersleHaut  : permet d'initilaiser le tab chemin de distance cases (avec des coord x y) dans une direction,   partir d'un point x y donn
 
 int **chemin  : tab de coordonn es x y du chemin
 int *ichemin  : indice de la case du chemin d'o  on part
@@ -455,7 +419,7 @@ Tunite *creeTourRoi(int posx, int posy){
     nouv->nom = tourRoi;
     nouv->cibleAttaquable = solEtAir;
     nouv->maposition = sol;
-    nouv->pointsDeVie = 8000;
+    nouv->pointsDeVie = 800;
     nouv->vitesseAttaque = 1.2;
     nouv->degats = 150;
     nouv->portee = 4;
@@ -535,73 +499,6 @@ Tunite *creeChevalier(int posx, int posy){
 
 
 
-/*
-TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante)
-{
-    TListePlayer a_portee = NULL;
-    if (UniteAttaquante==NULL)
-        return NULL;
-    if (UniteAttaquante->nom==gargouille)
-        {
-        for (int i = (UniteAttaquante->posX)-1;i<=(UniteAttaquante->posX)+2 ;i++)
-        {
-            for(int j = (UniteAttaquante->posY)-1;j<=(UniteAttaquante->posY)+2; j++)
-            {
-                if (i >= 0 && i < 11 && j >= 0 && j < 19 && jeu[i][j]!=NULL)
-                {
-
-                   if (jeu[i][j]->maposition==sol && jeu[i][j]->nom==tourRoi)
-                    {
-                        AjouterUnite(&a_portee,jeu[i][j]);
-                    }
-                }
-            }
-        }
-    }
-    else if (UniteAttaquante->nom==dragon)
-        {
-        for (int i = (UniteAttaquante->posX)-1;i<=(UniteAttaquante->posX)+2 ;i++)
-        {
-            for(int j = (UniteAttaquante->posY)-1;j<=(UniteAttaquante->posY)+2; j++)
-            {
-                if (i >= 0 && i < 11 && j >= 0 && j < 19 && jeu[i][j]!=NULL)
-                {
-
-                   if (jeu[i][j]->maposition==sol && jeu[i][j]->nom==tourRoi)
-                    {
-                        AjouterUnite(&a_portee,jeu[i][j]);
-                    }
-                }
-            }
-        }
-    }
-    return a_portee;
-}
-*/
-/*
-void peut_attaquer (int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible, TplateauJeu jeu){
-    if (*UniteAttaquante == NULL || Unitecible == NULL){
-        return;
-    }
-    TListePlayer tmp = *UniteAttaquante;
-    while (tmp != NULL){
-        TListePlayer suivant = tmp->suiv;
-        combat(i, tmp->pdata, Unitecible->pdata);
-
-
-        if (tmp->pdata->pointsDeVie <= 0){
-            jeu[tmp->pdata->posX][tmp->pdata->posY] = NULL;
-            printf("une unite a ete detruite\n");
-            affiche_liste(*UniteAttaquante);
-            supprimerUnite(UniteAttaquante, tmp->pdata);
-        }
-
-
-        tmp = suivant;
-    }
-}
-*/
-
 
 void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible, TplateauJeu jeu) {
     if (*UniteAttaquante == NULL || Unitecible == NULL) {
@@ -628,7 +525,9 @@ void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible
                 }
                 tmpTour = tmpTour->suiv;
             }
-
+            TListePlayer taille = a_portee;
+            tri_selection(&a_portee, tailleListe(taille));
+            affiche_liste(a_portee);
             // free (haha c'est a cause de ça que ça marchait pas avant)
             TListePlayer toFree = a_portee;
             while (toFree != NULL) {
@@ -640,11 +539,13 @@ void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible
 
         // si l'unité attaquante a plus de pv, on supprime
         if (tmp->pdata->pointsDeVie <= 0) {
+            //affiche_liste(a_portee);
             jeu[tmp->pdata->posX][tmp->pdata->posY] = NULL;
             printf("une unite a ete detruite\n");
             affiche_liste(*UniteAttaquante);
             supprimerUnite(UniteAttaquante, tmp->pdata);
         }
+
 
         tmp = suivant;
     }
@@ -655,7 +556,7 @@ void combat(int i, Tunite * UniteAttaquante, Tunite * UniteCible){
     if (UniteAttaquante == NULL || UniteCible == NULL){
         return;
     }
- 
+
     if (UniteAttaquante->pointsDeVie > 0){
         if (UniteAttaquante->vitesseAttaque <= UniteCible->vitesseAttaque && i%2==0){
             UniteCible->pointsDeVie -= UniteAttaquante->degats;
@@ -681,8 +582,8 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante)
 
     for (int i = UniteAttaquante->posX - portee; i <= UniteAttaquante->posX + portee; i++) {
         for (int j = UniteAttaquante->posY - portee; j <= UniteAttaquante->posY + portee; j++) {
-            if (i >= 0 && i < 11 && j >= 0 && j < 19 
-                && jeu[i][j] != NULL 
+            if (i >= 0 && i < 11 && j >= 0 && j < 19
+                && jeu[i][j] != NULL
                 && jeu[i][j]->nom == tourRoi) {
                 AjouterUnite(&a_portee, jeu[i][j]);
             }
@@ -690,13 +591,89 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante)
     }
     return a_portee;
 }
+/*
+void tri_selection(TListePlayer *UniteAttaquante){
+    if(UniteAttaquante == NULL){
+        return;
+    }
+
+    TListePlayer actuel = *UniteAttaquante;
+
+    while(actuel != NULL){
+        TListePlayer min = actuel;
+        TListePlayer ind = actuel->suiv;
+
+        while(ind != NULL && min->pdata != NULL){
+            if(ind->pdata->pointsDeVie < min->pdata->pointsDeVie){
+                min = ind;
+            }
+            ind = ind->suiv;
+        }
+
+        if(min != actuel){
+            Tunite *tmp = actuel->pdata;
+            actuel->pdata = min->pdata;
+            min->pdata = tmp;
+        }
+
+        actuel = actuel->suiv;
+    }
+}
+*/
+void tri_selection(TListePlayer *UniteAttaquante, int taille){
+    if(UniteAttaquante == NULL) return;
+
+    TListePlayer actuel = *UniteAttaquante;
+    while(actuel != NULL){
+        TListePlayer min = actuel;
+        TListePlayer ind = actuel->suiv;
+
+        while(ind != NULL){
+            if(ind->pdata->pointsDeVie < min->pdata->pointsDeVie){
+                min = ind;
+            }
+            ind = ind->suiv;
+        }
+
+        if(min != actuel){
+            Tunite *tmp = actuel->pdata;
+            actuel->pdata = min->pdata;
+            min->pdata = tmp;
+        }
+
+        actuel = actuel->suiv;
+    }
+
+    // réassigne les indiceParcours et positions selon l'ordre de la liste
+    int i = 5;
+    TListePlayer tmp = *UniteAttaquante;
+    while(tmp != NULL){
+        tmp->pdata->indiceParcours = i;
+        tmp->pdata->posX = 5;
+        tmp->pdata->posY = 17 - i;
+        i--;
+        tmp = tmp->suiv;
+    }
+}
+
+void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu){
+TListePlayer tmp = player;
+    while (tmp != NULL){
+        jeu[tmp->pdata->posX][tmp->pdata->posY] = tmp->pdata;
+        tmp = tmp->suiv;
+    }
+
+}
 
 
-
-
-
-
-
+int tailleListe(TListePlayer player){
+    int taille = 0;
+    while (player != NULL){
+        taille++;
+        player = player->suiv;
+    }
+    return taille;
+}
 
 
 
