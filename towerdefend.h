@@ -49,7 +49,7 @@ typedef Tunite* ** TplateauJeu;  ////tableau a deux dimensions de largeur 11 et 
 
 TplateauJeu AlloueTab2D(int largeur, int hauteur);
 void afficheCoordonneesParcours(int **t, int nbcoord);
-int **initChemin();         //retourne le chemin emprunter par la horde, sous forme d'un tableau[NBCOORDPARCOURS][2]
+int **initChemin(int *nbcase, int *x, int *y);         //retourne le chemin emprunter par la horde, sous forme d'un tableau[NBCOORDPARCOURS][2]
 void freeChemin(int **tab);
 
 void initPlateauAvecNULL(TplateauJeu jeu,int largeur, int hauteur, int** tabParcours);
@@ -73,8 +73,8 @@ Tunite *creeDragon(int posx, int posy);
 Tunite *creeChevalier(int posx, int posy);
 
 TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde);
-TListePlayer creerTour(TplateauJeu jeu,int nb_tour, TuniteDuJeu nouvelleUnite);
-void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde);
+TListePlayer creerTour(TplateauJeu jeu,int **tabParcours, int nb_tour, TuniteDuJeu nouvelleUnite, int x, int y);
+void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde, int nbcase);
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite);
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
 void placer_Tour(TplateauJeu jeu , int **tabParcours,TListePlayer unite_tour);
@@ -82,6 +82,7 @@ void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible
 void tri_selection(TListePlayer *UniteAttaquante, int taille);
 void affiche_liste (TListePlayer player);
 int tailleListe(TListePlayer player);
+int tailletab(int **tab, int max);
 
 
 

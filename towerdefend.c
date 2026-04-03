@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include "towerdefend.h"
 #include <stdbool.h>
+#include <time.h>
 
 
 //typedef Tunite* ** TplateauJeu;
@@ -98,10 +99,11 @@ bool tourRoiDetruite(TListePlayer player){
     return false;
 }
 
-TListePlayer creerTour(TplateauJeu jeu, int nb_tour, TuniteDuJeu nouvelleUnite)
+TListePlayer creerTour(TplateauJeu jeu, int **tabParcours, int nb_tour, TuniteDuJeu nouvelleUnite,int x, int y)
 {
    //TListePlayer nouv=(TListePlayer)malloc(sizeof(struct T_cell));
     TListePlayer nouv= NULL;
+
     for (int i = 0 ; i<nb_tour ; i++)
     {
         if (nouvelleUnite==tourAir)
@@ -118,7 +120,7 @@ TListePlayer creerTour(TplateauJeu jeu, int nb_tour, TuniteDuJeu nouvelleUnite)
         }
         else if (nouvelleUnite==tourRoi)
         {
-            Tunite *t = creeTourRoi(4,1);
+            Tunite *t = creeTourRoi(x, y);
             t->indiceParcours = 0;
             AjouterUnite(&nouv,t);
         }
@@ -158,16 +160,16 @@ TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde){
     return nouv;
 }
 
-void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde){
+void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde, int nbcase){
     if (horde == NULL){
         return;
     }
     while (horde != NULL){
         int i = horde->pdata->indiceParcours;
-        if (i >= NBCOORDPARCOURS - 1){
+        printf("indice parcours : %d\n", nbcase);
+        if (i >= nbcase-1){  //si la horde a atteint la fin du parcours
             //printf("la horde a atteint le roi\n");
-            horde = horde->suiv;
-            continue;
+            return;
         }
         int x = horde->pdata->posX;
         int y = horde->pdata->posY;
@@ -237,44 +239,93 @@ int *xdepart, int *ydepart : valeur en x y de d part pouri la premiere case
 int distance  : distance sur laquelle on va  crire des coordonn es dans le tab chemin
 int *distanceMaxRestante : securit  pour ne pas sortir de la plage d'indice de chemin
 */
+
+void ecritCheminVersleHaut(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
+    if ((*distanceMaxRestante - distance) >= 0){
+        *distanceMaxRestante -= distance;  // ← MANQUAIT
+        int y;
+        for (y = *ydepart; y > *ydepart - distance; y--){
+            if (*ichemin >= NBCOORDPARCOURS) break;  // ← sécurité
+            chemin[*ichemin][X] = *xdepart;
+            chemin[*ichemin][Y] = y;
+            (*ichemin)++;
+        }
+        *ydepart = y;
+    }
+}
+
+void ecritCheminVerslaDroite(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
+    if ((*distanceMaxRestante - distance) >= 0){
+        *distanceMaxRestante -= distance;  // ← MANQUAIT
+        int x;
+        for (x = *xdepart; x < *xdepart + distance; x++){
+            if (*ichemin >= NBCOORDPARCOURS) break;  // ← sécurité
+            chemin[*ichemin][X] = x;
+            chemin[*ichemin][Y] = *ydepart;
+            (*ichemin)++;
+        }
+        *xdepart = x;
+    }
+}
+
+void ecritCheminVerslaGauche(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
+    if ((*distanceMaxRestante - distance) >= 0){
+        *distanceMaxRestante -= distance;  // ← MANQUAIT
+        int x;
+        for (x = *xdepart; x > *xdepart - distance; x--){
+            if (*ichemin >= NBCOORDPARCOURS) break;  // ← sécurité
+            chemin[*ichemin][X] = x;
+            chemin[*ichemin][Y] = *ydepart;
+            (*ichemin)++;
+        }
+        *xdepart = x;
+    }
+}
+
+/*
 void ecritCheminVersleHaut(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
     if ((*distanceMaxRestante - distance)>=0){
         int y;
         for (y=*ydepart;y>*ydepart-distance;y--){
+
             chemin[*ichemin][X]= *xdepart;
             chemin[*ichemin][Y]= y;
             (*ichemin)++;
         }
         *ydepart=y;
     }
-    else printf("erreur longueur chemin\n");
+    else return;
 }
+
 void ecritCheminVerslaDroite(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
     if ((*distanceMaxRestante - distance)>=0){
         int x;
         for (x=*xdepart;x<*xdepart+distance;x++){
+
             chemin[*ichemin][X]= x;
             chemin[*ichemin][Y]= *ydepart;
             (*ichemin)++;
         }
         *xdepart=x;
     }
-    else printf("erreur longueur chemin\n");
+    else return;
 }
 void ecritCheminVerslaGauche(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
     if ((*distanceMaxRestante - distance)>=0){
         int x;
         for (x=*xdepart;x>*xdepart-distance;x--){
+
             chemin[*ichemin][X]= x;
             chemin[*ichemin][Y]= *ydepart;
             (*ichemin)++;
         }
         *xdepart=x;
     }
-    else printf("erreur longueur chemin\n");
+    else return;
 }
-
-int **initChemin(){
+*/
+/*
+int **initChemin(int *nbcase){
     int **chemin = (int**)malloc(sizeof(int*)*NBCOORDPARCOURS);
 
     for (int j=0;j<NBCOORDPARCOURS;j++){
@@ -295,13 +346,17 @@ int **initChemin(){
     ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 3, &distanceMaxRestante);
     ecritCheminVerslaGauche(chemin, &i, &xdepart, &ydepart, 4, &distanceMaxRestante);
     ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 3, &distanceMaxRestante);
+    *nbcase = i;
 
     return chemin;  //tab2D contenant des pointeurs
 }
-/*int **initChemin(){
-    int cheminmax = 90;
-    int cheminmin = 18;
-    int distanceroi;
+
+*/
+
+int **initChemin(int *nbcase, int *x, int *y){
+    srand(time(NULL));  //pour que le chemin soit différent à chaque lancement du programme
+    int cheminmax = 50;
+    int cheminmin = 34;
     int cheminalea = rand()%(cheminmax-cheminmin+1)+cheminmin;
     int **chemin = (int**)malloc(sizeof(int*)*NBCOORDPARCOURS);
 
@@ -312,43 +367,47 @@ int **initChemin(){
     int ydepart = 18;  //et non 19
     int xdepart = 5;  //5 = milieu de la fenetre de 11 de largeur (0-10)
     int i = 0;  //parcourt les i cases du chemin
-
-    int distanceMaxRestante = cheminalea;
-    int droite = 0;
-    int gauche = 0;
+    int brider = 0;
+    int distanceMaxRestante = NBCOORDPARCOURS;
+    int nbdistance = 0;
     ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 2, &distanceMaxRestante);
-    while(distanceroi < 16){
+    int d = 0;
+    while (d < 20){
         int alea = rand()%3;
-        if (alea == 0){
-            alea = rand()%(5-1+1)+1;
-            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, alea, &distanceMaxRestante);
-            distanceroi += alea;
-        } else if(alea == 1 && gauche < 4){
-            alea = rand()%(5-1+1)+1;
-            ecritCheminVerslaGauche(chemin, &i, &xdepart, &ydepart, alea, &distanceMaxRestante);
-            gauche += alea;
-            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, alea, &distanceMaxRestante);
-            distanceroi += alea;
-        } else if (alea == 2 && droite<4){
-            alea = rand()%(5-1+1)+1;
-            ecritCheminVerslaDroite(chemin, &i, &xdepart, &ydepart, alea, &distanceMaxRestante);
-            droite +=alea;
-            alea = rand()%(5-1+1)+1;
-            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, alea, &distanceMaxRestante);
-            distanceroi += alea;
-        } else if (gauche > 4){
-            alea = rand()%(5-1+1)+1;
-            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, alea, &distanceMaxRestante);
-            distanceroi+=alea;
-        } else if (droite > 4){
-            alea = rand()%(5-1+1)+1;
-            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, alea, &distanceMaxRestante);
-            distanceroi+=alea;
+        nbdistance = rand()%5+2;
+        if (alea == 0 && (ydepart - nbdistance >= 1) && brider == 0){
+            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
+            d+= nbdistance;
+        } 
+        else if(alea == 1 && (xdepart - nbdistance) >= 0 && brider == 0){
+            ecritCheminVerslaGauche(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
+            brider+=1;
+        } 
+        else if (alea == 2 && (xdepart + nbdistance) < 11 && brider == 0){
+            ecritCheminVerslaDroite(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
+            brider+=1;
+        } 
+        else if (brider == 1 && (ydepart - nbdistance >= 1)){
+            nbdistance = rand()%3+2;
+            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
+            brider = 0;
+            d+= nbdistance;
+        }
+        else {
+            ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, abs(1 - ydepart), &distanceMaxRestante);
+            break;
         }
     }
+    *nbcase = i;
+    *x = xdepart;
+    *y = ydepart;
+    
 
     return chemin;  //tab2D contenant des pointeurs
-}*/
+}
+
+
+
 
 void afficheCoordonneesParcours(int **chemin, int nbcoord){
     printf("Liste coordonnees: ");
@@ -675,6 +734,15 @@ int tailleListe(TListePlayer player){
     return taille;
 }
 
+
+int tailletab(int **tab, int max){
+    int i = 0;
+    while(i < max && tab[i] != NULL){
+        i++;
+
+    }
+    return i;
+}
 
 
 

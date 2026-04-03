@@ -43,8 +43,9 @@
     // ASTUCE : on stocke le sprite d'une unit l'indice de son nom dans le type enum TuniteDuJeu, dans le tableau TabSprite
     // SAUF pour l'Eau, l''herbe et le pont qui apparaitront en l absence d'unit (NULL dans le plateau) et en foction de certains indices x,y d finissant le chemin central
     SDL_Surface* TabSprite[11]={pSpriteTourSol,pSpriteTourAir,pSpriteTourRoi,pSpriteArcher,pSpriteChevalier,pSpriteDragon,pSpriteGargouille,pSpriteEau,pSpriteHerbe,pSpritePont,pSpriteTerre};
-
-    int** tabParcours=initChemin(); //tabParcours est un tableau de NBCOORDPARCOURS cases, chacune contenant un tableau 2 cases (indice 0 pour X, indice 1 pour Y)
+    int nbcase = 0;
+    int x, y;
+    int** tabParcours=initChemin(&nbcase, &x, &y); //tabParcours est un tableau de NBCOORDPARCOURS cases, chacune contenant un tableau 2 cases (indice 0 pour X, indice 1 pour Y)
 
     if ( pSpriteTourSol ) //si le permier sprite a bien t charg , on suppose que les autres aussi
     {
@@ -76,7 +77,7 @@
     jeu[horde2->posX][horde2->posY] = horde2;
     horde3->indiceParcours = 3;
     jeu[horde3->posX][horde3->posY] = horde3;*/
-    TListePlayer unite_tour = creerTour(jeu,1,tourRoi);
+    TListePlayer unite_tour = creerTour(jeu,tabParcours,1,tourRoi, x, y);
     //PositionnePlayerOnPlateau(unite_horde,jeu);
     affiche_liste(unite_horde);
     //tour de con
@@ -116,18 +117,18 @@
                     /*                                                                     */
                     //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
 
-                    deplacer_horde(jeu, tabParcours, unite_horde);
+                    deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
                     if (unite_horde != NULL) {
                             TListePlayer a_portee = quiEstAPortee(jeu, unite_horde->pdata);
                             if (a_portee != NULL)
                             printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
                             if (tourRoiDetruite(a_portee)) {
                                     printf("Tour roi detruite\n");
-                                    cont = 0;
+                                    //cont = 0;
                             }
                             peut_attaquer(i, &unite_horde, unite_tour, jeu);
                     } else {
-                            printf ("Plus de horde");
+                            //printf ("Plus de horde");
                     }
                     i++;
 
@@ -160,7 +161,7 @@
                     /***********************************************************************/
                     //affichage du jeu   chaque tour
                 maj_fenetre(pWindow);
-                SDL_Delay(500);  //valeur du d lai   modifier  ventuellement
+                SDL_Delay(100);  //valeur du d lai   modifier  ventuellement
 
 
                 //LECTURE DE CERTAINES TOUCHES POUR LANCER LES RESTAURATIONS ET SAUVEGARDES
