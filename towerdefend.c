@@ -155,18 +155,17 @@ TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde){
     return nouv;
 }
 
-TListePlayer creer_rand_unite(TplateauJeu jeu, int **tabParcours, int x, int y, TListePlayer horde){
-    int rand_unite = rand() % 101;
-    if (rand_unite >= 15 && rand_unite <= 50){
-        int rand_unite = rand()%4;
+TListePlayer creer_rand_unite(TplateauJeu jeu, int **tabParcours, int x, int y, TListePlayer horde, int rand_unite){
+   // if (rand_unite >= 15 && rand_unite <= 50){
+        int rand_unitee = rand()%4;
         Tunite *u;
         int startX = tabParcours[0][X];
         int startY = tabParcours[0][Y];
-        if (rand_unite == 0){
+        if (rand_unitee == 0){
             u = creeDragon(startX, startY);
-        } else if (rand_unite == 1){
+        } else if (rand_unitee == 1){
             u = creeGargouille(startX, startY);
-        } else if (rand_unite == 2){
+        } else if (rand_unitee == 2){
             u = creeChevalier(startX, startY);
         } else {
             u = creeArcher(startX, startY);
@@ -175,8 +174,57 @@ TListePlayer creer_rand_unite(TplateauJeu jeu, int **tabParcours, int x, int y, 
         jeu[startX][startY] = u;
         AjouterUnite(&horde, u);
         return horde;
+   // }
+   // return horde;
+}
+
+TListePlayer creer_rand_tour(TplateauJeu jeu, int **tabParcours, TListePlayer tour, int rand_tour, int nbcase){
+    bool boolen = false;
+    //if (rand_tour >= 5 && rand_tour <= 60){
+        Tunite *t;
+        int rand_case = rand() % (nbcase - 2) + 1; 
+        int posX = tabParcours[rand_case][X];
+        int posY = tabParcours[rand_case][Y];
+        if ((posX + 1 != tabParcours[rand_case + 1][X]) 
+        && (posX + 1 != tabParcours[rand_case][X]) 
+        && (posX + 1 != tabParcours[rand_case - 1][X]) 
+        && (posX + 1 < LARGEURJEU) && (jeu[posX+1][posY] == NULL)){ 
+            posX++;
+            boolen = true;
+        } else if ((posX - 1 != tabParcours[rand_case + 1][X]) 
+        && (posX - 1 != tabParcours[rand_case][X]) 
+        && (posX - 1 != tabParcours[rand_case - 1][X]) 
+        && (posX - 1 >= 0) && (jeu[posX-1][posY] == NULL)){
+            posX--;
+            boolen = true;
+        } else if ((posY + 1 != tabParcours[rand_case + 1][Y]) 
+        && (posY + 1 != tabParcours[rand_case][Y]) 
+        && (posY + 1 != tabParcours[rand_case - 1][Y]) 
+        && posY + 1 > 0 && (rand_case - 1 > 0) && (jeu[posX][posY+1] == NULL)){
+            posY++;
+            boolen = true;
+        } else if ((posY - 1 != tabParcours[rand_case + 1][Y]) 
+        && (posY - 1 != tabParcours[rand_case][Y]) 
+        && (posY - 1 != tabParcours[rand_case - 1][Y]) 
+        && posY - 1 < HAUTEURJEU && (rand_case - 1 > 0) && (jeu[posX][posY-1] == NULL)){
+            posY--;
+            boolen = true;
+ }
+        if (boolen){
+            int random = rand()%2;
+            if (random == 0){
+                t = creeTourAir(posX,posY);
+            }
+            else if (random == 1){
+                t = creeTourSol(posX,posY);
+            }
+            t->indiceParcours = 0;
+            jeu[t->posX][t->posY] = t;
+            AjouterUnite(&tour,t);
+            return tour;
+        //}
     }
-    return horde;
+   return tour;
 }
 
 void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde, int nbcase){
@@ -353,7 +401,7 @@ Tunite *creeTourSol(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 500;
     nouv->vitesseAttaque = 1.5;
-    nouv->degats = 120;
+    nouv->degats = 30;
     nouv->portee = 5;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
@@ -369,7 +417,7 @@ Tunite *creeTourAir(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 500;
     nouv->vitesseAttaque = 1.0;
-    nouv->degats = 100;
+    nouv->degats = 25;
     nouv->portee = 3;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
@@ -546,13 +594,14 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante)
 
     for (int i = UniteAttaquante->posX - portee; i <= UniteAttaquante->posX + portee; i++) {
         for (int j = UniteAttaquante->posY - portee; j <= UniteAttaquante->posY + portee; j++) {
-            if (i >= 0 && i < 11 && j >= 0 && j < 19
-                && jeu[i][j] != NULL
-                && jeu[i][j]->nom == tourRoi) {
+            if ((i >= 0 && i < 11 && j >= 0 && j < 19
+                && jeu[i][j] != NULL)
+                && (jeu[i][j]->nom == tourRoi || jeu[i][j]->nom == tourAir || jeu[i][j]->nom == tourSol)) {
                 AjouterUnite(&a_portee, jeu[i][j]);
             }
         }
     }
+    affiche_liste(a_portee);
     return a_portee;
 }
 

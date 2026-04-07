@@ -85,7 +85,8 @@ void tri_selection(TListePlayer *UniteAttaquante, int taille);
 void affiche_liste (TListePlayer player);
 int tailleListe(TListePlayer player);
 int tailletab(int **tab, int max);
-TListePlayer creer_rand_unite (TplateauJeu jeu,int **tabParcours,int x , int y, TListePlayer horde);
+TListePlayer creer_rand_unite (TplateauJeu jeu,int **tabParcours, int x , int y, TListePlayer horde, int rand_unite);
+TListePlayer creer_rand_tour (TplateauJeu jeu,int **tabParcours, TListePlayer tour, int rand_tour, int nbcase);
 
 
 

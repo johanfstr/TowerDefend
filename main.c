@@ -117,10 +117,17 @@
                     /*                                                                     */
                     /*                                                                     */
                     //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
-                    if (nb_unites < 5) {
-                    unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde);
-                    TListePlayer tmp = unite_horde;
-                    nb_unites = tailleListe(tmp);
+                    int random = rand() % 101;   
+                    if (random >= 15 && random <= 50) {
+                        unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde, random);
+                    }
+                    else if (random >= 5 && random <= 60) {
+
+                   // if (nb_unites < 5){
+                        unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, random, nbcase);
+                        TListePlayer tmp = unite_tour;
+                        nb_unites = tailleListe(tmp);
+                   // }
                     }
                     if (unite_horde != NULL) {
 
