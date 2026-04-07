@@ -67,7 +67,7 @@
 
     srand(time(NULL));
     int i = 0;
-    TListePlayer unite_horde = creerhorde(jeu, 5, 17, 5);
+    TListePlayer unite_horde = creerhorde(jeu, 5, 17, 1);
     /*Tunite *horde1=creeDragon(5,17);
     Tunite *horde2=creeChevalier(5,16);
     Tunite *horde3=creeArcher(5,15);
@@ -77,9 +77,9 @@
     jeu[horde2->posX][horde2->posY] = horde2;
     horde3->indiceParcours = 3;
     jeu[horde3->posX][horde3->posY] = horde3;*/
-    TListePlayer unite_tour = creerTour(jeu,tabParcours,1,tourRoi, x, y);
+    TListePlayer unite_tour = creer_tour_roi(jeu,tabParcours, x, y);
     //PositionnePlayerOnPlateau(unite_horde,jeu);
-    affiche_liste(unite_horde);
+    //affiche_liste(unite_horde);
     //tour de con
     //TListePlayer toursol = creerTour(jeu,1,tourSol);
     //TListePlayer tourair = creerTour(jeu,1,tourAir);
@@ -92,6 +92,7 @@
     AjouterUnite(&unite_horde,horde2);
     AjouterUnite(&unite_horde,horde3);
     //supprimerUnite(&unite_horde,horde1);*/
+    int nb_unites = 0;
 
 
     /* // FIN de vos variables */
@@ -116,14 +117,20 @@
                     /*                                                                     */
                     /*                                                                     */
                     //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
-
-                    deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
+                    if (nb_unites < 5) {
+                    unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde);
+                    TListePlayer tmp = unite_horde;
+                    nb_unites = tailleListe(tmp);
+                    }
                     if (unite_horde != NULL) {
+
+                            deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
                             TListePlayer a_portee = quiEstAPortee(jeu, unite_horde->pdata);
                             if (a_portee != NULL)
                             printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
-                            if (tourRoiDetruite(a_portee)) {
+                            if (tourRoiDetruite(unite_tour)) {
                                     printf("Tour roi detruite\n");
+                                    jeu[x][y] = NULL;
                                     //cont = 0;
                             }
                             peut_attaquer(i, &unite_horde, unite_tour, jeu);

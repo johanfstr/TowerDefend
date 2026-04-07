@@ -73,7 +73,9 @@ Tunite *creeDragon(int posx, int posy);
 Tunite *creeChevalier(int posx, int posy);
 
 TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde);
-TListePlayer creerTour(TplateauJeu jeu,int **tabParcours, int nb_tour, TuniteDuJeu nouvelleUnite, int x, int y);
+
+TListePlayer creerTour(TplateauJeu jeu, int **tabParcours, int nb_tour,int x, int y);
+TListePlayer creer_tour_roi(TplateauJeu jeu, int **tabParcours, int x, int y);
 void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde, int nbcase);
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite);
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
@@ -83,6 +85,8 @@ void tri_selection(TListePlayer *UniteAttaquante, int taille);
 void affiche_liste (TListePlayer player);
 int tailleListe(TListePlayer player);
 int tailletab(int **tab, int max);
+TListePlayer creer_rand_unite (TplateauJeu jeu,int **tabParcours,int x , int y, TListePlayer horde);
+
 
 
 
