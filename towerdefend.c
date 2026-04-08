@@ -6,12 +6,192 @@
 #include <stdbool.h>
 #include <time.h>
 
+#define ENTREE1 "partieseq.txt"
+#define SORTIE1 "partieseq.txt"
+
+int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase){
+    FILE *f_out;
+    
+    // DEMO D ECRITURE DANS UN FICHIER SEQUENTIEL
+    if ((f_out = fopen(SORTIE1,"w")) == NULL){
+        fprintf(stderr, "\nErreur: Impossible d'ecrire dans le fichier %s\n",SORTIE1);
+        return EXIT_FAILURE;
+    }
+    
+    printf("on commence a écire \n");
+    //écriture de l'entier lu dans le fichier SORTIE ("sortie.txt")
+    int nb_horde = tailleListe(horde);
+    fprintf(f_out,"%d\n", nb_horde);  //on mémorise dans le fichier le nombre d'entier qui y seront mis ensuite
+
+    for (int i=0;i<nb_horde;i++){
+        printf("on fait hordre num %d\n",i);
+        //écriture de l'entier lu dans le fichier SORTIE ("sortie.txt")
+        char* nom_horde = enumtochar(horde->pdata);
+        fprintf(f_out,"%s, ",nom_horde); // TRES IMPORTANT : REPERER L ESPACE APRES LE %d, celui-ci va permetre de séparer les entiers pour lors de la lecture future du fichier
+        fprintf(f_out,"pos x :%d, ",horde->pdata->posX);
+        fprintf(f_out,"pos y :%d, ",horde->pdata->posY);
+        fprintf(f_out,"indice :%d, ",horde->pdata->indiceParcours);
+        fprintf(f_out,"pv :%d; \n",horde->pdata->pointsDeVie);
+        horde = horde->suiv;
+    }
+    TListePlayer tmp = tour;
+    int nb_tour = tailleListe(tmp);
+    fprintf(f_out,"%d\n", nb_tour);  //on mémorise dans le fichier le nombre d'entier qui y seront mis ensuite
+    for (int i=0;i<nb_tour;i++){
+        printf("on fait tour num %d\n",i);
+        //écriture de l'entier lu dans le fichier SORTIE ("sortie.txt")
+        char* nom_tour = enumtochar(tmp->pdata);
+        fprintf(f_out,"%s, ",nom_tour); // TRES IMPORTANT : REPERER L ESPACE APRES LE %d, celui-ci va permetre de séparer les entiers pour lors de la lecture future du fichier
+        fprintf(f_out,"pos x :%d, ",tmp->pdata->posX);
+        fprintf(f_out,"pos y :%d;\n",tmp->pdata->posY);
+        tmp = tmp->suiv;
+    }
+    fprintf(f_out,"%d\n", nbcase);
+    for (int i=0; i<nbcase; i++){
+        fprintf(f_out,"%d,%d\n",tabParcours[i][X], tabParcours[i][Y]);
+    }
+    fprintf(f_out,";");
+
+    
+    //fermeture du fichier
+    fclose(f_out);
+    printf("Le fichier sortie.txt a ete cree, essayez de le lire avec un notepad++, gedit, etc.\n");
+    return 0;
+}
+
+char* enumtochar(Tunite *unite){
+    switch (unite->nom) {
+        case tourSol:
+            return "tourSol";
+        case tourAir:
+            return "tourAir";
+        case tourRoi:
+            return "tourRoi";
+        case archer:
+            return "archer";
+        case chevalier:
+            return "chevalier";
+        case dragon:
+            return "dragon";
+        case gargouille:
+            return "gargouille";
+        default:
+            return "inconnu";
+    }
+}
+
+int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int** tabParcours){
+    FILE *f_in;
+    int nb_horde;
+    if ((f_in = fopen(SORTIE1,"r")) == NULL){
+        fprintf(stderr, "\nErreur: Impossible de lire le fichier %s\n",SORTIE1);
+        return tabParcours;
+    }
+    
+    fscanf(f_in,"%d",&nb_horde);  //valable uniquement parceque je sais que j'ai un entier qui represente le nombre d'entiers qui va suivre
+    for (int i=0;i<nb_horde;i++){
+        char nom[256];
+        char c = 0;
+        int j = 0;
+
+        while(c != ','){
+            fscanf(f_in, "%c", &c);
+            if (c == ',') break;
+            nom[j++] = c;
+        }
+        nom[j] = '\0';
+        printf("%s, ", nom); 
+
+        while(c != ':'){
+            fscanf(f_in, "%c", &c);
+        }
+        int posX = 0;
+        fscanf(f_in, "%d", &posX);
+        printf("posX : %d, ", posX);
+        fscanf(f_in, "%c", &c);
+
+        while(c != ':'){
+            fscanf(f_in, "%c", &c);
+        }
+        int posY = 0;
+        fscanf(f_in, "%d", &posY);
+        printf("posY : %d, ", posY);
+        fscanf(f_in, "%c", &c); 
+
+        while(c != ':'){
+            fscanf(f_in, "%c", &c);
+        }
+        int indice = 0;
+        fscanf(f_in, "%d", &indice);
+        printf("indice : %d, ", indice);
+        fscanf(f_in, "%c", &c); 
+
+        while(c != ':'){
+            fscanf(f_in, "%c", &c);
+        }
+        int pv = 0;
+        fscanf(f_in, "%d", &pv);
+        printf("pv : %d;\n", pv);
+        
+        fscanf(f_in, "%c", &c);
+    }
+    int nb_tour = 0;
+    fscanf(f_in, "%d", &nb_tour);
+    for (int i = 0; i < nb_tour; i++){
+        char nom[256];
+        char c = 0;
+        int j = 0;
+
+        while(c != ','){
+            fscanf(f_in, "%c", &c);
+            if (c == ',') break;
+            nom[j++] = c;
+        }
+        nom[j] = '\0';
+        printf("%s, ", nom); 
+
+        while(c != ':'){
+            fscanf(f_in, "%c", &c);
+        }
+        int posX = 0;
+        fscanf(f_in, "%d", &posX);
+        printf("posX : %d, ", posX);
+        fscanf(f_in, "%c", &c);
+
+        while(c != ':'){
+            fscanf(f_in, "%c", &c);
+        }
+        int posY = 0;
+        fscanf(f_in, "%d", &posY);
+        printf("posY : %d;\n", posY);
+        fscanf(f_in, "%c", &c); 
+
+    }
+    int nbcase = 0;
+    fscanf(f_in, "%d", &nbcase);
+    for (int i = 0; i < nbcase; i++){
+        int x = 0;
+        int y = 0;
+        char c = 0;
+        fscanf(f_in, "%d", &x);
+        printf("%d, ", x);
+        fscanf(f_in, "%c", &c);
+        fscanf(f_in, "%d", &y);
+        printf("%d\n", y);
+    }
+    printf("Le fichier sortie.txt a lu\n");
+    fclose(f_in);
+    return tabParcours;
+}
+
+
 void affiche_liste (TListePlayer player)
 {
-    while (player!=NULL)
+    TListePlayer tmp = player;
+    while (tmp!=NULL)
     {
-        printf ("%d  ",player->pdata->pointsDeVie);
-        player=player->suiv;
+        printf ("%d  ",tmp->pdata->pointsDeVie);
+        tmp=tmp->suiv;
     }
     printf ("\n");
 }
@@ -321,7 +501,7 @@ int **initChemin(int *nbcase, int *x, int *y){
     }
 
     int ydepart = 18;  //et non 19
-    int xdepart = rand()%11;  //5 = milieu de la fenetre de 11 de largeur (0-10)
+    int xdepart = rand()%10;  //5 = milieu de la fenetre de 11 de largeur (0-10)
     int i = 0;  //parcourt les i cases du chemin
     int brider = 0;
     int distanceMaxRestante = NBCOORDPARCOURS;
@@ -529,7 +709,12 @@ void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible
 
         if (a_portee != NULL) {
             // L'unité attaque la tour du roi
-            combat(i, tmp->pdata, a_portee->pdata);
+            while (a_portee != NULL){
+                if (a_portee->pdata->nom == tourRoi){
+                    combat(i, tmp->pdata, a_portee->pdata);
+                }
+                a_portee = a_portee -> suiv;;
+            }
 
             // La tour du roi attaque si l'unité est dans sa portée
             TListePlayer tmpTour = Unitecible;
@@ -568,13 +753,13 @@ void combat(int i, Tunite * UniteAttaquante, Tunite * UniteCible){
     if (UniteAttaquante == NULL || UniteCible == NULL){
         return;
     }
-
     if (UniteAttaquante->pointsDeVie > 0){
         if (UniteAttaquante->vitesseAttaque <= UniteCible->vitesseAttaque && i%2==0){
             UniteCible->pointsDeVie -= UniteAttaquante->degats;
             UniteAttaquante->peutAttaquer = 0;
             UniteCible->peutAttaquer = 1;
-        } else {
+        } 
+        else if (UniteAttaquante->nom == tourRoi){
             UniteAttaquante->pointsDeVie -= UniteCible->degats;
             UniteCible->peutAttaquer = 0;
             UniteAttaquante->peutAttaquer = 1;
@@ -652,7 +837,7 @@ int tailleListe(TListePlayer player){
     TListePlayer tmp = player;
     int taille = 0;
     while (tmp != NULL){
-        if (tmp->pdata->pointsDeVie>=0){
+        if (tmp->pdata->pointsDeVie>0){
             taille++;
         }
         tmp = tmp->suiv;

@@ -89,6 +89,10 @@ TListePlayer creer_rand_unite (TplateauJeu jeu,int **tabParcours, int x , int y,
 TListePlayer creer_rand_tour (TplateauJeu jeu,int **tabParcours, TListePlayer tour, int rand_tour, int nbcase);
 
 
+int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase);
+int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int** tabParcours);
+char* enumtochar(Tunite *unite);
+
 
 
 #endif // TOWERDEFEND_H_INCLUDED

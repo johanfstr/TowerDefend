@@ -66,7 +66,16 @@
 
 
     srand(time(NULL));
+
+
+
+    
+    
     int i = 0;
+
+
+
+
     TListePlayer unite_horde = creerhorde(jeu, 5, 17, 1);
     /*Tunite *horde1=creeDragon(5,17);
     Tunite *horde2=creeChevalier(5,16);
@@ -84,6 +93,7 @@
     //TListePlayer toursol = creerTour(jeu,1,tourSol);
     //TListePlayer tourair = creerTour(jeu,1,tourAir);
 
+printf("%d\n", nbcase);
     //faire après Question c
     //placer_defense(jeu ,tabParcours, unite_tour);
 
@@ -92,7 +102,6 @@
     AjouterUnite(&unite_horde,horde2);
     AjouterUnite(&unite_horde,horde3);
     //supprimerUnite(&unite_horde,horde1);*/
-    int nb_unites = 0;
 
 
     /* // FIN de vos variables */
@@ -116,18 +125,18 @@
                     /***********************************************************************/
                     /*                                                                     */
                     /*                                                                     */
+        
                     //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
                     int random = rand() % 101;   
                     if (random >= 15 && random <= 50) {
                         unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde, random);
                     }
-                    else if (random >= 5 && random <= 60) {
-
-                   // if (nb_unites < 5){
+                    else if (random >= 5 && random <= 60 /*&& tailleListe(unite_tour) < 15*/) {
                         unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, random, nbcase);
-                        TListePlayer tmp = unite_tour;
-                        nb_unites = tailleListe(tmp);
-                   // }
+                        printf("------------------------------------------------------------------------------------\n");
+                        affiche_liste(unite_tour);
+                        printf("------------------------------------------------------------------------------------\n");
+
                     }
                     if (unite_horde != NULL) {
 
@@ -145,6 +154,7 @@
                             //printf ("Plus de horde");
                     }
                     i++;
+
 
 
 
@@ -184,7 +194,7 @@
                         /* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
 
                         // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        message("Sauvegarde","Placer ici votre fonction de restauration/sauvegarde");
+                        tabParcours = chargerseq(jeu, &unite_horde, &unite_tour, tabParcours);
 
                         //Ne pas modifiez les 4 lignes ci-dessous
                         efface_fenetre(pWinSurf);
@@ -208,7 +218,7 @@
                         /* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
 
                         // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        message("Sauvegarde","Placer ici votre fonction de restauration/sauvegarde");
+                        sauvegarderseq(jeu, unite_horde, unite_tour, tabParcours, nbcase);
 
                         //Ne pas modifiez les 4 lignes ci-dessous
                         efface_fenetre(pWinSurf);
