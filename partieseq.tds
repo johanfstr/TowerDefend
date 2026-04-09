@@ -1,0 +1,28 @@
+4
+gargouille, pos x :1, pos y :12, indice :6, pv :140; 
+gargouille, pos x :1, pos y :16, indice :2, pv :145; 
+dragon, pos x :1, pos y :14, indice :4, pv :190; 
+chevalier, pos x :1, pos y :18, indice :0, pv :400; 
+3
+tourSol, pos x :2, pos y :5;
+tourAir, pos x :2, pos y :17;
+tourRoi, pos x :1, pos y :1;
+17
+1,18
+1,17
+1,16
+1,15
+1,14
+1,13
+1,12
+1,11
+1,10
+1,9
+1,8
+1,7
+1,6
+1,5
+1,4
+1,3
+1,2
+;

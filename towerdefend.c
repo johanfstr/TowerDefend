@@ -5,19 +5,37 @@
 #include "towerdefend.h"
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 #define ENTREE1 "partieseq.txt"
 #define SORTIE1 "partieseq.txt"
 
+void libererListe(TListePlayer *liste, TplateauJeu jeu) {
+    if (liste == NULL) return;
+    TListePlayer tmp = *liste;
+    while (tmp != NULL) {
+        TListePlayer suivant = tmp->suiv;
+        // Effacer la case du plateau
+        if (jeu != NULL && tmp->pdata != NULL) {
+            jeu[tmp->pdata->posX][tmp->pdata->posY] = NULL;
+        }
+        free(tmp->pdata);   // libère la Tunite
+        free(tmp);          // libère la cellule de liste
+        tmp = suivant;
+    }
+    *liste = NULL;
+}
+
+
 int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase){
     FILE *f_out;
-    
+
     // DEMO D ECRITURE DANS UN FICHIER SEQUENTIEL
     if ((f_out = fopen(SORTIE1,"w")) == NULL){
         fprintf(stderr, "\nErreur: Impossible d'ecrire dans le fichier %s\n",SORTIE1);
         return EXIT_FAILURE;
     }
-    
+
     printf("on commence a écire \n");
     //écriture de l'entier lu dans le fichier SORTIE ("sortie.txt")
     int nb_horde = tailleListe(horde);
@@ -52,7 +70,7 @@ int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int**
     }
     fprintf(f_out,";");
 
-    
+
     //fermeture du fichier
     fclose(f_out);
     printf("Le fichier sortie.txt a ete cree, essayez de le lire avec un notepad++, gedit, etc.\n");
@@ -80,19 +98,27 @@ char* enumtochar(Tunite *unite){
     }
 }
 
-int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int** tabParcours){
+int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *nbcase){
     FILE *f_in;
     int nb_horde;
+    int** fauxchemin = NULL;
     if ((f_in = fopen(SORTIE1,"r")) == NULL){
         fprintf(stderr, "\nErreur: Impossible de lire le fichier %s\n",SORTIE1);
-        return tabParcours;
+        return fauxchemin;
     }
-    
+    initPlateauAvecNULL(jeu,LARGEURJEU,HAUTEURJEU,fauxchemin);
     fscanf(f_in,"%d",&nb_horde);  //valable uniquement parceque je sais que j'ai un entier qui represente le nombre d'entiers qui va suivre
     for (int i=0;i<nb_horde;i++){
         char nom[256];
         char c = 0;
         int j = 0;
+        
+        do {
+            fscanf(f_in, "%c", &c);
+        } while (c == ' ' || c == '\n' || c == '\r');
+        // Premier caractère valide déjà lu, on l'ajoute
+        nom[j++] = c;
+
 
         while(c != ','){
             fscanf(f_in, "%c", &c);
@@ -100,7 +126,8 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int**
             nom[j++] = c;
         }
         nom[j] = '\0';
-        printf("%s, ", nom); 
+
+        printf("%256s, ", nom);
 
         while(c != ':'){
             fscanf(f_in, "%c", &c);
@@ -116,7 +143,7 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int**
         int posY = 0;
         fscanf(f_in, "%d", &posY);
         printf("posY : %d, ", posY);
-        fscanf(f_in, "%c", &c); 
+        fscanf(f_in, "%c", &c);
 
         while(c != ':'){
             fscanf(f_in, "%c", &c);
@@ -124,7 +151,7 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int**
         int indice = 0;
         fscanf(f_in, "%d", &indice);
         printf("indice : %d, ", indice);
-        fscanf(f_in, "%c", &c); 
+        fscanf(f_in, "%c", &c);
 
         while(c != ':'){
             fscanf(f_in, "%c", &c);
@@ -132,9 +159,33 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int**
         int pv = 0;
         fscanf(f_in, "%d", &pv);
         printf("pv : %d;\n", pv);
-        
+
         fscanf(f_in, "%c", &c);
-    }
+
+        Tunite *unite_horde = NULL;
+        if (strcmp(nom,"gargouille")==0){
+            unite_horde=creeGargouille(posX,posY);
+        }
+        else if (strcmp(nom,"dragon")==0){
+            unite_horde=creeDragon(posX,posY);
+        }
+        else if (strcmp(nom,"archer")==0){
+            unite_horde=creeArcher(posX,posY);
+        }
+        else if (strcmp(nom,"chevalier")==0){
+            unite_horde=creeChevalier(posX,posY);
+        }
+        else {
+            printf("BRUUUUUUHHHH\n");
+        }
+        if (unite_horde != NULL){
+            unite_horde->indiceParcours=indice;
+            unite_horde->pointsDeVie=pv;
+            AjouterUnite(horde,unite_horde);
+            jeu[posX][posY]=unite_horde;
+        }
+     }
+
     int nb_tour = 0;
     fscanf(f_in, "%d", &nb_tour);
     for (int i = 0; i < nb_tour; i++){
@@ -142,13 +193,19 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int**
         char c = 0;
         int j = 0;
 
+        do {
+            fscanf(f_in, "%c", &c);
+        } while (c == ' ' || c == '\n' || c == '\r');
+        // Premier caractère valide déjà lu, on l'ajoute
+        nom[j++] = c;
+
         while(c != ','){
             fscanf(f_in, "%c", &c);
             if (c == ',') break;
             nom[j++] = c;
         }
         nom[j] = '\0';
-        printf("%s, ", nom); 
+        printf("%s, ", nom);
 
         while(c != ':'){
             fscanf(f_in, "%c", &c);
@@ -164,12 +221,34 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int**
         int posY = 0;
         fscanf(f_in, "%d", &posY);
         printf("posY : %d;\n", posY);
-        fscanf(f_in, "%c", &c); 
+        fscanf(f_in, "%c", &c);
+        Tunite *unite_tour = NULL;
+        if (strcmp(nom,"tourRoi") == 0){
+            unite_tour = creeTourRoi(posX,posY);
+        }
+        else if (strcmp(nom,"tourAir") == 0)
+        {
+            unite_tour=creeTourAir(posX,posY);
+        }
+        else if (strcmp(nom,"tourSol") == 0)
+        {
+            unite_tour=creeTourSol(posX,posY);
+        } 
+        else {
+            printf("BRUUUUUUHHHH\n");
+        }
+        if (unite_tour != NULL){
+            AjouterUnite(tour,unite_tour);
+            jeu[posX][posY]=unite_tour;
+        }
 
     }
-    int nbcase = 0;
-    fscanf(f_in, "%d", &nbcase);
-    for (int i = 0; i < nbcase; i++){
+    fscanf(f_in, "%d", nbcase);
+    int** newchemin = (int**)malloc(sizeof(int*)*(*nbcase));
+    for (int j=0;j<(*nbcase);j++){
+        newchemin[j] = (int*)malloc(sizeof(int)*2);  
+    }
+    for (int i = 0; i < (*nbcase); i++){
         int x = 0;
         int y = 0;
         char c = 0;
@@ -178,10 +257,14 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int**
         fscanf(f_in, "%c", &c);
         fscanf(f_in, "%d", &y);
         printf("%d\n", y);
+        newchemin[i][X]=x;
+        newchemin[i][Y]=y;
     }
+    //affiche_liste(unite_horde);
     printf("Le fichier sortie.txt a lu\n");
     fclose(f_in);
-    return tabParcours;
+
+    return newchemin;
 }
 
 
@@ -331,7 +414,6 @@ TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde){
     printf("horde creee : \n");
     TListePlayer tmp = nouv;;
     affiche_liste(tmp);
-    //PositionnePlayerOnPlateau(nouv, jeu);
     return nouv;
 }
 
@@ -350,7 +432,7 @@ TListePlayer creer_rand_unite(TplateauJeu jeu, int **tabParcours, int x, int y, 
         } else {
             u = creeArcher(startX, startY);
         }
-        u->indiceParcours = 0;  
+        u->indiceParcours = 0;
         jeu[startX][startY] = u;
         AjouterUnite(&horde, u);
         return horde;
@@ -362,30 +444,30 @@ TListePlayer creer_rand_tour(TplateauJeu jeu, int **tabParcours, TListePlayer to
     bool boolen = false;
     //if (rand_tour >= 5 && rand_tour <= 60){
         Tunite *t;
-        int rand_case = rand() % (nbcase - 2) + 1; 
+        int rand_case = rand() % (nbcase - 2) + 1;
         int posX = tabParcours[rand_case][X];
         int posY = tabParcours[rand_case][Y];
-        if ((posX + 1 != tabParcours[rand_case + 1][X]) 
-        && (posX + 1 != tabParcours[rand_case][X]) 
-        && (posX + 1 != tabParcours[rand_case - 1][X]) 
-        && (posX + 1 < LARGEURJEU) && (jeu[posX+1][posY] == NULL)){ 
+        if ((posX + 1 != tabParcours[rand_case + 1][X])
+        && (posX + 1 != tabParcours[rand_case][X])
+        && (posX + 1 != tabParcours[rand_case - 1][X])
+        && (posX + 1 < LARGEURJEU) && (jeu[posX+1][posY] == NULL)){
             posX++;
             boolen = true;
-        } else if ((posX - 1 != tabParcours[rand_case + 1][X]) 
-        && (posX - 1 != tabParcours[rand_case][X]) 
-        && (posX - 1 != tabParcours[rand_case - 1][X]) 
+        } else if ((posX - 1 != tabParcours[rand_case + 1][X])
+        && (posX - 1 != tabParcours[rand_case][X])
+        && (posX - 1 != tabParcours[rand_case - 1][X])
         && (posX - 1 >= 0) && (jeu[posX-1][posY] == NULL)){
             posX--;
             boolen = true;
-        } else if ((posY + 1 != tabParcours[rand_case + 1][Y]) 
-        && (posY + 1 != tabParcours[rand_case][Y]) 
-        && (posY + 1 != tabParcours[rand_case - 1][Y]) 
+        } else if ((posY + 1 != tabParcours[rand_case + 1][Y])
+        && (posY + 1 != tabParcours[rand_case][Y])
+        && (posY + 1 != tabParcours[rand_case - 1][Y])
         && posY + 1 > 0 && (rand_case - 1 > 0) && (jeu[posX][posY+1] == NULL)){
             posY++;
             boolen = true;
-        } else if ((posY - 1 != tabParcours[rand_case + 1][Y]) 
-        && (posY - 1 != tabParcours[rand_case][Y]) 
-        && (posY - 1 != tabParcours[rand_case - 1][Y]) 
+        } else if ((posY - 1 != tabParcours[rand_case + 1][Y])
+        && (posY - 1 != tabParcours[rand_case][Y])
+        && (posY - 1 != tabParcours[rand_case - 1][Y])
         && posY - 1 < HAUTEURJEU && (rand_case - 1 > 0) && (jeu[posX][posY-1] == NULL)){
             posY--;
             boolen = true;
@@ -415,7 +497,11 @@ void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde, int 
         int i = horde->pdata->indiceParcours;
         if (i >= nbcase-1){  //si la horde a atteint la fin du parcours
             //printf("la horde a atteint le roi\n");
-            return;
+            if (horde->suiv != NULL){
+                horde = horde -> suiv;
+                continue;
+            }
+            else return;
         }
         int x = horde->pdata->posX;
         int y = horde->pdata->posY;
@@ -514,15 +600,15 @@ int **initChemin(int *nbcase, int *x, int *y){
         if (alea == 0 && (ydepart - nbdistance >= 1) && brider == 0){
             ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
             d+= nbdistance;
-        } 
+        }
         else if(alea == 1 && (xdepart - nbdistance) >= 0 && brider == 0){
             ecritCheminVerslaGauche(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
             brider+=1;
-        } 
+        }
         else if (alea == 2 && (xdepart + nbdistance) < 11 && brider == 0){
             ecritCheminVerslaDroite(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
             brider+=1;
-        } 
+        }
         else if (brider == 1 && (ydepart - nbdistance >= 1)){
             nbdistance = rand()%3+2;
             ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, nbdistance, &distanceMaxRestante);
@@ -537,7 +623,7 @@ int **initChemin(int *nbcase, int *x, int *y){
     *nbcase = i;
     *x = xdepart;
     *y = ydepart;
-    
+
 
     return chemin;  //tab2D contenant des pointeurs
 }
@@ -581,8 +667,8 @@ Tunite *creeTourSol(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 500;
     nouv->vitesseAttaque = 1.5;
-    nouv->degats = 30;
-    nouv->portee = 5;
+    nouv->degats = 8;
+    nouv->portee = 1;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
     nouv->posY = posy;
@@ -597,7 +683,7 @@ Tunite *creeTourAir(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 500;
     nouv->vitesseAttaque = 1.0;
-    nouv->degats = 25;
+    nouv->degats = 5;
     nouv->portee = 3;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
@@ -613,7 +699,7 @@ Tunite *creeTourRoi(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 800;
     nouv->vitesseAttaque = 1.2;
-    nouv->degats = 280;
+    nouv->degats = 20;
     nouv->portee = 4;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
@@ -698,6 +784,7 @@ void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible
         TListePlayer suivant = tmp->suiv;
 
         TListePlayer a_portee = quiEstAPortee(jeu, tmp->pdata);
+        TListePlayer a_portee_head = a_portee;  // ← garder la tête
         TListePlayer taille = *UniteAttaquante;
         int tailleportee = tailleListe(a_portee);
         if (tailleportee > 0){
@@ -726,8 +813,7 @@ void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible
                 }
                 tmpTour = tmpTour->suiv;
             }
-            // free (haha c'est a cause de ça que ça marchait pas avant)
-            TListePlayer toFree = a_portee;
+            TListePlayer toFree = a_portee_head;
             while (toFree != NULL) {
                 TListePlayer next = toFree->suiv;
                 free(toFree);
@@ -749,23 +835,21 @@ void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible
     }
 }
 
-void combat(int i, Tunite * UniteAttaquante, Tunite * UniteCible){
-    if (UniteAttaquante == NULL || UniteCible == NULL){
-        return;
+void combat(int i, Tunite *UniteAttaquante, Tunite *UniteCible) {
+    if (UniteAttaquante == NULL || UniteCible == NULL) return;
+    if (UniteAttaquante->pointsDeVie <= 0) return;
+    if (UniteCible->pointsDeVie <= 0) return;
+
+    // vérifie que l'attaquant peut cibler le type de la cible
+    if (UniteAttaquante->cibleAttaquable != solEtAir) {
+        if (UniteAttaquante->cibleAttaquable != UniteCible->maposition) return;
     }
-    if (UniteAttaquante->pointsDeVie > 0){
-        if (UniteAttaquante->vitesseAttaque <= UniteCible->vitesseAttaque && i%2==0){
-            UniteCible->pointsDeVie -= UniteAttaquante->degats;
-            UniteAttaquante->peutAttaquer = 0;
-            UniteCible->peutAttaquer = 1;
-        } 
-        else if (UniteAttaquante->nom == tourRoi){
-            UniteAttaquante->pointsDeVie -= UniteCible->degats;
-            UniteCible->peutAttaquer = 0;
-            UniteAttaquante->peutAttaquer = 1;
-        }
-    } else {
-        UniteAttaquante->peutAttaquer = 0;
+
+    // attaque tous les i tours selon la vitesse
+    if (i % 2 == 0) {
+        UniteCible->pointsDeVie -= UniteAttaquante->degats;
+        printf("combat : %d attaque %d, PV restants : %d\n",
+               UniteAttaquante->nom, UniteCible->nom, UniteCible->pointsDeVie);
     }
 }
 
@@ -853,21 +937,3 @@ int tailletab(int **tab, int max){
     }
     return i;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

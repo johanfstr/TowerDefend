@@ -1,41 +1,39 @@
+5
+archer, pos x :5, pos y :11, indice :7, pv :80; 
+gargouille, pos x :5, pos y :15, indice :3, pv :150; 
+gargouille, pos x :3, pos y :9, indice :11, pv :150; 
+dragon, pos x :5, pos y :18, indice :0, pv :200; 
+chevalier, pos x :5, pos y :17, indice :1, pv :400; 
 4
-gargouille, pos x :3, pos y :12, indice :12, pv :75; 
-chevalier, pos x :1, pos y :13, indice :9, pv :160; 
-chevalier, pos x :3, pos y :16, indice :4, pv :320; 
-chevalier, pos x :5, pos y :16, indice :2, pv :400; 
-4
-tourAir, pos x :3, pos y :17;
-tourAir, pos x :2, pos y :13;
-tourSol, pos x :4, pos y :12;
-tourRoi, pos x :9, pos y :1;
-29
+tourSol, pos x :1, pos y :5;
+tourSol, pos x :6, pos y :13;
+tourSol, pos x :5, pos y :4;
+tourRoi, pos x :4, pos y :1;
+26
 5,18
 5,17
 5,16
-4,16
-3,16
-2,16
-1,16
-1,15
-1,14
-1,13
-1,12
-2,12
-3,12
+5,15
+5,14
+5,13
+5,12
+5,11
+4,11
 3,11
 3,10
-4,10
-5,10
-5,9
-5,8
-5,7
-5,6
-5,5
-5,4
-5,3
-5,2
-5,1
-6,1
-7,1
-8,1
+3,9
+3,8
+2,8
+1,8
+0,8
+0,7
+0,6
+0,5
+0,4
+1,4
+2,4
+3,4
+4,4
+4,3
+4,2
 ;

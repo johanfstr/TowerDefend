@@ -72,7 +72,7 @@ void maj_fenetre(SDL_Window *pWindow){
     SDL_UpdateWindowSurface(pWindow);
 }
 
-void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int hauteur, SDL_Surface **TabSprite, SDL_Surface* destination ){
+void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int hauteur, SDL_Surface **TabSprite, SDL_Surface* destination, int nbcase){
 
     //On met de l'herbe partout
     for (int j=0;j<hauteur;j++){
@@ -82,11 +82,11 @@ void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int haute
     }
 
     //on ajoute les cases du chemin en second (qui remplacent certaines cases avec de l'herbe
-    for (int i=0;i<NBCOORDPARCOURS;i++){
+    for (int i=0;i<nbcase;i++){
         prepare_sprite(chemin[i][X]*40,chemin[i][Y]*40,TabSprite[10],destination); //terre
     }
 
-    //puis les unités présentes sur le jeu
+    //puis les unitï¿½s prï¿½sentes sur le jeu
     for (int j=0;j<hauteur;j++){
         for (int i=0;i<largeur;i++){
             if (jeu[i][j] != NULL){
@@ -96,7 +96,7 @@ void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int haute
         }
     }
 /*
-pour mémoire:
+pour mï¿½moire:
 prepare_sprite(i*40,j*40,TabSprite[9],destination); // pont
 prepare_sprite(i*40,j*40,TabSprite[7],destination); //eau
 prepare_sprite(i*40,j*40,TabSprite[10],destination); //terre

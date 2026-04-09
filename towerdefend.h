@@ -90,9 +90,9 @@ TListePlayer creer_rand_tour (TplateauJeu jeu,int **tabParcours, TListePlayer to
 
 
 int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase);
-int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int** tabParcours);
+int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *newcase);
 char* enumtochar(Tunite *unite);
-
+void libererListe(TListePlayer *liste, TplateauJeu jeu);
 
 
 #endif // TOWERDEFEND_H_INCLUDED

@@ -1,4 +1,4 @@
-//"surcouche partielle" de la SDL pour les affichages liés au jeu2048
+//"surcouche partielle" de la SDL pour les affichages liï¿½s au jeu2048
 
 
 #include "towerdefend.h"
@@ -18,12 +18,12 @@ void prepare_sprite( int x, int y, SDL_Surface* source, SDL_Surface* destination
 void efface_fenetre(SDL_Surface *psurf);
 void maj_fenetre(SDL_Window *pWindow);
 
-void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int hauteur, SDL_Surface **TabSprite, SDL_Surface* destination );
+void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int hauteur, SDL_Surface **TabSprite, SDL_Surface* destination, int nbcase );
 void dessineAttaque(SDL_Surface *surface, Tunite *attaquant, Tunite *cible );
 
 
 
-// propre à la sdl
+// propre ï¿½ la sdl
 
 void pxl(SDL_Surface *surface, int x, int y, Uint32 color);
 // Sets the pixel at (x, y) in the specified surface.
@@ -73,17 +73,17 @@ getpxl(ecran, 10, 10); // renvoie l'Uint32 correspondant aux couleurs du pixel e
 
 frame(ecran, 10, 10, 20, 30, color); // rectangle remplit de largeur 20 et hauteur 30 en 10, 10 sur ecran et de couleur color.
 
-cls(ecran, 0); // remplit ecran de noir ( = efface l'écran).
+cls(ecran, 0); // remplit ecran de noir ( = efface l'ï¿½cran).
 
-Hline(ecran, 10, 10, 50, color); // ligne horizontale de 50 pxl commençant en 10, 10 de couleur color.
+Hline(ecran, 10, 10, 50, color); // ligne horizontale de 50 pxl commenï¿½ant en 10, 10 de couleur color.
 
-Vline(ecran, 10, 10, 50, color); // ligne verticale de 50 pxl commençant en 10, 10 de couleur color.
+Vline(ecran, 10, 10, 50, color); // ligne verticale de 50 pxl commenï¿½ant en 10, 10 de couleur color.
 
-Cpxl(ecran, 10, 16, color); // verifie que les coordonnées sont dans ecran avant d'appeler pxl(ecran, 10, 16, color) ( = clipping).
+Cpxl(ecran, 10, 16, color); // verifie que les coordonnï¿½es sont dans ecran avant d'appeler pxl(ecran, 10, 16, color) ( = clipping).
 
 box(ecran, 10, 10, 50, 20, color); // rectangle vide de couleur color en 10, 10 de dimensions 50, 20.
 
-line(ecran, 0, 0, 10, 10, 0xFF0000); ligne  rouge entredeux pts de coordonnées (0, 0) et (10, 10) inclus.
+line(ecran, 0, 0, 10, 10, 0xFF0000); ligne  rouge entredeux pts de coordonnï¿½es (0, 0) et (10, 10) inclus.
 
 circle(ecran, 10, 10, 5, color); cercle vide en 10, 10 de rayon 5 et de couleur color.
 
