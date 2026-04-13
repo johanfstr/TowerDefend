@@ -1,10 +1,10 @@
 //NOM pr nom  tudiant 1 : Becker Pierre-Antoine
-    //NOM pr nom  tudiant 2 :
+//NOM pr nom  tudiant 2 : Forestier Johan
 
-    #include "SDL.h"
-    #include "maSDL.h"    //biblioth que avec des fonctions d'affichage utilisant la SDL
-    #include "towerdefend.h"
-    #include <stdio.h>
+#include "SDL.h"
+#include "maSDL.h"    //biblioth que avec des fonctions d'affichage utilisant la SDL
+#include "towerdefend.h"
+#include <stdio.h>
     #include <stdlib.h>
     #include <time.h>
 
@@ -72,7 +72,7 @@
 bool ischarged = false;
                         TListePlayer newunite_horde = NULL;
                         TListePlayer newunite_tour = NULL;
-                        int **newchemin = NULL;
+                        int** newchemin = NULL;  //initialisation pour éviter un warning, sera réalloué dans chargerbin
                         int newcases = 0;
 
     int i = 0;
@@ -126,9 +126,8 @@ printf("%d\n", nbcase);
                     efface_fenetre(pWinSurf);
                     prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
 
-                    /***********************************************************************/
-                    /*                                                                     */
-                    /*                                                                     */
+                    /***************************** début de nos fonctions ***********************************/
+                                                        
                     if (ischarged == false){
                          //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
                          int random = rand() % 101;
@@ -162,7 +161,7 @@ printf("%d\n", nbcase);
                 } else {
                         prepareAllSpriteDuJeu(jeu,newchemin,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, newcases);
                         //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
-                        /*int random = rand() % 101;
+                        int random = rand() % 101;
                         if (random >= 15 && random <= 50) {
                                 newunite_horde = creer_rand_unite(jeu, newchemin, x, y, newunite_horde, random);
                         }
@@ -172,7 +171,7 @@ printf("%d\n", nbcase);
                                 affiche_liste(newunite_tour);
                                 printf("------------------------------------------------------------------------------------\n");
 
-                        }*/
+                        }
                         if (newunite_horde != NULL) {
                                 printf("jsuis encore la bb %d\n", i);
                                 deplacer_horde(jeu, newchemin, newunite_horde, newcases);
@@ -206,9 +205,6 @@ printf("%d\n", nbcase);
                         }
                         i++;
                 }
-
-
-
 
                     //a supprimer, c'est juste pour attirer votre attention sur comment est g r  le chemin (un tableau 2D de coordonn es)(regarder le corps de afficheCoordonneesParcours)
                     //afficheCoordonneesParcours(tabParcours,NBCOORDPARCOURS);
@@ -247,10 +243,10 @@ printf("%d\n", nbcase);
                         // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
                         libererListe(&unite_horde, jeu);
                         libererListe(&unite_tour, jeu);
+                        libererListe(&newunite_horde, jeu);
+                        libererListe(&newunite_tour, jeu);
                         newchemin = chargerseq(jeu, &newunite_horde, &newunite_tour, &newcases);
-                        for(int i = 0; i < 26; i++){
-                                printf("%d, %d\n", newchemin[i][X], newchemin[i][Y]);
-                        }
+
                         printf("le nouveau chemin a été créé\n");
                         ischarged = true;
                         printf("j'ai réussi a changer le bool\n");
@@ -266,7 +262,15 @@ printf("%d\n", nbcase);
                         /* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur C */
 
                         // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        message("Sauvegarde","Placer ici votre fonction de restauration/sauvegarde");
+                        libererListe(&unite_horde, jeu);
+                        libererListe(&unite_tour, jeu);
+                        libererListe(&newunite_horde, jeu);
+                        libererListe(&newunite_tour, jeu);
+                        newchemin = chargerbin(jeu, &newunite_horde, &newunite_tour, &newcases);
+                        printf("le nouveau chemin a été créé\n");
+                        ischarged = true;
+                        printf("j'ai réussi a changer le bool\n");
+                        i = 0;
 
                         //Ne pas modifiez les 4 lignes ci-dessous
                         efface_fenetre(pWinSurf);
@@ -290,7 +294,7 @@ printf("%d\n", nbcase);
                         /* Ajouter vos appels de fonctions ci-dessous qd le joueur appyue sur S */
 
                         // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        message("Sauvegarde","Placer ici votre fonction de restauration/sauvegarde");
+                        sauvegarderbin(jeu, unite_horde, unite_tour, tabParcours, nbcase);
 
                         //Ne pas modifiez les 4 lignes ci-dessous
                         efface_fenetre(pWinSurf);

@@ -9,6 +9,213 @@
 
 #define ENTREE1 "partieseq.txt"
 #define SORTIE1 "partieseq.txt"
+#define ENTREE2 "partiebin.bin"
+#define SORTIE2 "partiebin.bin"
+
+int sauvegarderbin(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase){
+    FILE *f_out;
+
+    if ((f_out = fopen(SORTIE2,"wb")) == NULL){
+        fprintf(stderr, "\nErreur: Impossible d'ecrire dans le fichier %s\n",SORTIE2);
+        return(EXIT_FAILURE);
+    }
+
+    int nb_horde = tailleListe(horde);
+    fwrite(&nb_horde, sizeof(int),1,f_out);
+
+    for (int i=0;i<nb_horde;i++){
+        printf("on fait hordre num %d\n",i);
+        //écriture de l'entier lu dans le fichier SORTIE ("sortie.txt")
+        char* nom_horde = enumtochar(horde->pdata);
+        int len_nom = strlen(nom_horde) + 1; // +1 pour le caractère de fin de chaîne
+        fwrite(&len_nom, sizeof(int),1,f_out); // écrire la longueur de la chaîne avant d'écrire la chaîne elle-même
+        fwrite(nom_horde, sizeof(char),len_nom,f_out); // écrire la chaîne de caractères (y compris le caractère de fin de chaîne)
+        fwrite(&horde->pdata->posX, sizeof(int),1,f_out); // écrire la position X de l'unité
+        fwrite(&horde->pdata->posY, sizeof(int),1,f_out); // écrire la position Y de l'unité
+        fwrite(&horde->pdata->indiceParcours, sizeof(int),1,f_out); // écrire l'indice de parcours de l'unité
+        fwrite(&horde->pdata->pointsDeVie, sizeof(int),1,f_out); // écrire les points de vie de l'unité
+        horde = horde->suiv; // passer à l'unité suivante dans la liste d'horde
+    }
+
+    int nb_tour = tailleListe(tour);
+    fwrite(&nb_tour, sizeof(int),1,f_out); 
+
+    for (int i=0;i<nb_tour;i++){
+        printf("on fait tour num %d\n",i);
+        //écriture de l'entier lu dans le fichier SORTIE ("sortie.txt")
+        char* nom_tour = enumtochar(tour->pdata);
+        int len_nom = strlen(nom_tour) + 1; // +1 pour le caractère de fin de chaîne
+        fwrite(&len_nom, sizeof(int),1,f_out); // écrire la longueur de la chaîne avant d'écrire la chaîne elle-même
+        fwrite(nom_tour, sizeof(char),len_nom,f_out); // écrire la chaîne de caractères (y compris le caractère de fin de chaîne)
+        fwrite(&tour->pdata->posX, sizeof(int),1,f_out); // écrire la position X de la tour
+        fwrite(&tour->pdata->posY, sizeof(int),1,f_out); // écrire la position Y de la tour
+        fwrite(&tour->pdata->pointsDeVie, sizeof(int),1,f_out); // écrire les points de vie de la tour
+
+        tour = tour->suiv; 
+    }
+
+    fwrite(&nbcase, sizeof(int),1,f_out); // écrire le nombre de cases du parcours
+    for (int i=0; i<nbcase; i++){
+        fwrite(&tabParcours[i][X], sizeof(int),1,f_out); // écrire la coordonnée X de la case du parcours
+        fwrite(&tabParcours[i][Y], sizeof(int),1,f_out); // écrire la coordonnée Y de la case du parcours
+    }
+
+    //fermeture du fichier
+    fclose(f_out);
+    printf("Le fichier sortie.txt a ete cree, essayez de le lire avec un notepad++, gedit, etc.\n");
+
+    return EXIT_SUCCESS;
+
+}
+
+int** chargerbin(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *nbcase){
+    FILE *f_in;
+    int** fauxchemin = NULL;
+
+    if ((f_in = fopen(SORTIE2,"rb")) == NULL){
+        fprintf(stderr, "\nErreur: Impossible de lire le fichier %s\n",SORTIE2);
+        return fauxchemin;
+    }
+    initPlateauAvecNULL(jeu,LARGEURJEU,HAUTEURJEU,fauxchemin);
+    int nb_horde = 0;
+    fread(&nb_horde, sizeof(int),1,f_in);
+    printf("Nombre d'unités dans la horde : %d\n", nb_horde);
+
+    for (int i=0; i<nb_horde;i++){
+        int len_nom = 0;
+        fread(&len_nom, sizeof(int),1,f_in);
+        printf("longueur nom pour unité %d = %d\n",i+1,len_nom);
+        char *nom_horde = (char*)malloc(sizeof(char)*len_nom);
+        for (int j=0; j<len_nom; j++){
+            fread(&nom_horde[j], sizeof(char),1,f_in);
+        }
+        nom_horde[len_nom] = '\0'; // Ajouter le caractère de fin de chaîne
+
+        for (int j=0; j<len_nom; j++){
+            printf("%c", nom_horde[j]);
+        }
+        printf(" ");
+
+        int posX = 0;
+        fread(&posX, sizeof(int),1,f_in);
+        printf("posX : %d, ", posX);
+
+        int posY = 0;
+        fread(&posY, sizeof(int),1,f_in);
+        printf("posY : %d, ", posY);
+
+        int indice = 0;
+        fread(&indice, sizeof(int),1,f_in);
+        printf("indice : %d, ", indice);
+
+        int pv = 0;
+        fread(&pv, sizeof(int),1,f_in);
+        printf("pv : %d;\n", pv);
+
+        Tunite *unite_horde = NULL;
+        if (strcmp(nom_horde,"gargouille")==0){
+            unite_horde=creeGargouille(posX,posY);
+        }
+        else if (strcmp(nom_horde,"dragon")==0){
+            unite_horde=creeDragon(posX,posY);
+        }
+        else if (strcmp(nom_horde,"archer")==0){
+            unite_horde=creeArcher(posX,posY);
+        }
+        else if (strcmp(nom_horde,"chevalier")==0){
+            unite_horde=creeChevalier(posX,posY);
+        }
+        else {
+            printf("BRUUUUUUHHHH\n");
+        }
+        if (unite_horde != NULL){
+            unite_horde->indiceParcours=indice;
+            unite_horde->pointsDeVie=pv;
+            AjouterUnite(horde,unite_horde);
+            jeu[posX][posY]=unite_horde;
+        }
+        free(nom_horde); // Libérer la mémoire allouée pour le nom de l'unité
+    }
+
+    int nb_tour = 0;
+    fread(&nb_tour, sizeof(int),1,f_in);
+    printf("Nombre d'unités dans les tours : %d\n", nb_tour);
+
+    for (int i = 0; i < nb_tour; i++){
+        int len_nom = 0;
+        fread(&len_nom, sizeof(int),1,f_in);
+        printf("longueur nom pour unité %d = %d\n",i+1,len_nom);
+        char *nom_tour = (char*)malloc(sizeof(char)*len_nom);
+        for (int j=0; j<len_nom; j++){
+            fread(&nom_tour[j], sizeof(char),1,f_in);
+        }
+        nom_tour[len_nom] = '\0'; // Ajouter le caractère de fin de chaîne
+
+
+        for (int j=0; j<len_nom; j++){
+            printf("%c", nom_tour[j]);
+        }
+        printf(" ");
+
+
+        int posX = 0;
+        fread(&posX, sizeof(int),1,f_in);
+        printf("posX : %d, ", posX);
+
+        int posY = 0;
+        fread(&posY, sizeof(int),1,f_in);
+        printf("posY : %d, ", posY);
+
+        int pv = 0;
+        fread(&pv, sizeof(int),1,f_in);
+        printf("pv : %d;\n", pv);
+
+        Tunite *unite_tour = NULL;
+        if (strcmp(nom_tour,"tourRoi") == 0){
+            unite_tour = creeTourRoi(posX,posY);
+        }
+        else if (strcmp(nom_tour,"tourAir") == 0)
+        {
+            unite_tour=creeTourAir(posX,posY);
+        }
+        else if (strcmp(nom_tour,"tourSol") == 0)
+        {
+            unite_tour=creeTourSol(posX,posY);
+        } 
+        else {
+            printf("BRUUUUUUHHHH\n");
+        }
+        if (unite_tour != NULL){
+            unite_tour->pointsDeVie=pv;
+            AjouterUnite(tour,unite_tour);
+            jeu[posX][posY]=unite_tour;
+        }
+        free(nom_tour); // Libérer la mémoire allouée pour le nom de l'unité
+    }
+
+    fread(nbcase, sizeof(int),1,f_in);
+    printf("Nombre de cases du parcours : %d\n", *nbcase);
+
+
+    int** newchemin = (int**)malloc(sizeof(int*)*(*nbcase));
+    for (int j=0;j<(*nbcase);j++){
+        newchemin[j] = (int*)malloc(sizeof(int)*2);  
+    }
+    for (int i = 0; i < (*nbcase); i++){
+        int x = 0;
+        fread(&x, sizeof(int),1,f_in);
+        int y = 0;
+        fread(&y, sizeof(int),1,f_in);
+        printf("Case %d : x = %d, y = %d\n", i+1, x, y);
+        newchemin[i][X] = x;
+        newchemin[i][Y] = y;
+    }
+        
+    printf("Le fichier sortie.txt a lu\n");
+    fclose(f_in);
+    
+    return newchemin;
+}
 
 void libererListe(TListePlayer *liste, TplateauJeu jeu) {
     if (liste == NULL) return;
@@ -61,7 +268,8 @@ int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int**
         char* nom_tour = enumtochar(tmp->pdata);
         fprintf(f_out,"%s, ",nom_tour); // TRES IMPORTANT : REPERER L ESPACE APRES LE %d, celui-ci va permetre de séparer les entiers pour lors de la lecture future du fichier
         fprintf(f_out,"pos x :%d, ",tmp->pdata->posX);
-        fprintf(f_out,"pos y :%d;\n",tmp->pdata->posY);
+        fprintf(f_out,"pos y :%d, ",tmp->pdata->posY);
+        fprintf(f_out,"pv :%d; \n",tmp->pdata->pointsDeVie);
         tmp = tmp->suiv;
     }
     fprintf(f_out,"%d\n", nbcase);
@@ -222,6 +430,15 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *
         fscanf(f_in, "%d", &posY);
         printf("posY : %d;\n", posY);
         fscanf(f_in, "%c", &c);
+
+        while(c != ':'){
+            fscanf(f_in, "%c", &c);
+        }
+        int pv = 0;
+        fscanf(f_in, "%d", &pv);
+        printf("pv : %d;\n", pv);
+        fscanf(f_in, "%c", &c);
+
         Tunite *unite_tour = NULL;
         if (strcmp(nom,"tourRoi") == 0){
             unite_tour = creeTourRoi(posX,posY);
@@ -238,6 +455,7 @@ int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *
             printf("BRUUUUUUHHHH\n");
         }
         if (unite_tour != NULL){
+            unite_tour->pointsDeVie=pv;
             AjouterUnite(tour,unite_tour);
             jeu[posX][posY]=unite_tour;
         }
@@ -667,7 +885,7 @@ Tunite *creeTourSol(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 500;
     nouv->vitesseAttaque = 1.5;
-    nouv->degats = 8;
+    nouv->degats = 28;
     nouv->portee = 1;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
@@ -683,7 +901,7 @@ Tunite *creeTourAir(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 500;
     nouv->vitesseAttaque = 1.0;
-    nouv->degats = 5;
+    nouv->degats = 25;
     nouv->portee = 3;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
@@ -699,7 +917,7 @@ Tunite *creeTourRoi(int posx, int posy){
     nouv->maposition = sol;
     nouv->pointsDeVie = 800;
     nouv->vitesseAttaque = 1.2;
-    nouv->degats = 20;
+    nouv->degats = 80;
     nouv->portee = 4;
     nouv->vitessedeplacement = 0;
     nouv->posX = posx;
