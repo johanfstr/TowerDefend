@@ -4,15 +4,13 @@
 #include "SDL.h"
 #include "maSDL.h"    //biblioth que avec des fonctions d'affichage utilisant la SDL
 #include "towerdefend.h"
+#include "sauvegarde.h"
 #include <stdio.h>
-    #include <stdlib.h>
-    #include <time.h>
+#include <stdlib.h>
+#include <time.h>
 
-
-
-    /*--------- Main ---------------------*/
-    int main(int argc, char* argv[])
-    {
+/*--------- Main ---------------------*/
+int main(int argc, char* argv[]){
     SDL_Window *pWindow;
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -53,59 +51,22 @@
     initPlateauAvecNULL(jeu,LARGEURJEU,HAUTEURJEU, tabParcours);
     affichePlateauConsole(jeu,LARGEURJEU,HAUTEURJEU);
 
-
-
     prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
     maj_fenetre(pWindow);
 
 
     /**********************************************************************/
-    /* */
-    /*
-    DEFINISSEZ/INITIALISER ICI VOS VARIABLES */
-
+    /*DEFINISSEZ/INITIALISER ICI VOS VARIABLES */
 
     srand(time(NULL));
-
-
-
-bool ischarged = false;
-                        TListePlayer newunite_horde = NULL;
-                        TListePlayer newunite_tour = NULL;
-                        int** newchemin = NULL;  //initialisation pour éviter un warning, sera réalloué dans chargerbin
-                        int newcases = 0;
-
+    bool ischarged = false;
+    TListePlayer newunite_horde = NULL;
+    TListePlayer newunite_tour = NULL;
+    int** newchemin = NULL;  //initialisation pour éviter un warning, sera réalloué dans chargerbin et charge seq
+    int newcases = 0;
     int i = 0;
-
-
-
-    TListePlayer unite_horde = creerhorde(jeu, 5, 17, 1);
-    /*Tunite *horde1=creeDragon(5,17);
-    Tunite *horde2=creeChevalier(5,16);
-    Tunite *horde3=creeArcher(5,15);
-    horde1->indiceParcours = 1;
-    jeu[horde1->posX][horde1->posY] = horde1;
-    horde1->indiceParcours = 2;
-    jeu[horde2->posX][horde2->posY] = horde2;
-    horde3->indiceParcours = 3;
-    jeu[horde3->posX][horde3->posY] = horde3;*/
-    TListePlayer unite_tour = creer_tour_roi(jeu,tabParcours, x, y);
-    //PositionnePlayerOnPlateau(unite_horde,jeu);
-    //affiche_liste(unite_horde);
-    //tour de con
-    //TListePlayer toursol = creerTour(jeu,1,tourSol);
-    //TListePlayer tourair = creerTour(jeu,1,tourAir);
-
-printf("%d\n", nbcase);
-    //faire après Question c
-    //placer_defense(jeu ,tabParcours, unite_tour);
-
-    //test de suppression d'une unité
-    /*AjouterUnite(&unite_horde,horde1);
-    AjouterUnite(&unite_horde,horde2);
-    AjouterUnite(&unite_horde,horde3);
-    //supprimerUnite(&unite_horde,horde1);*/
-
+    TListePlayer unite_horde = NULL;
+    TListePlayer unite_tour = creer_tour_roi(jeu,tabParcours, x, y); //Créer la tour roi
 
     /* // FIN de vos variables */
     /********************************************************************/
@@ -113,9 +74,7 @@ printf("%d\n", nbcase);
 
             // boucle principale du jeu
             int cont = 1;
-            //int unique = 1;  //a supprimer c'est utiliser pour la d mo de dessineAttaque
             while ( cont != 0 ){   //VOUS DEVEZ GERER (DETECTER) LA FIN DU JEU -> tourRoiDetruite
-                printf("je re rentre dans la boucle\n");
                     SDL_Event event;
                     while (SDL_PollEvent(&event)){
                             if (event.type == SDL_QUIT){
@@ -127,7 +86,7 @@ printf("%d\n", nbcase);
                     prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
 
                     /***************************** début de nos fonctions ***********************************/
-                                                        
+
                     if (ischarged == false){
                          //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
                          int random = rand() % 101;
@@ -136,9 +95,6 @@ printf("%d\n", nbcase);
                         }
                         else if (random >= 5 && random <= 60 && tailleListe(unite_tour) < 5) {
                                 unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, random, nbcase);
-                                printf("------------------------------------------------------------------------------------\n");
-                                affiche_liste(unite_tour);
-                                printf("------------------------------------------------------------------------------------\n");
                         }
                         if (unite_horde != NULL) {
                                 deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
@@ -147,17 +103,18 @@ printf("%d\n", nbcase);
                                         printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
                                 }
                                 if (tourRoiDetruite(unite_tour)) {
-                                        printf("Tour roi detruite\n");
+										printf(" ------------------ Fin du jeu -------------------\n");
+                                        printf("     Tour roi detruite, les hordes ont gagnés\n");
+										printf(" -------------------------------------------------\n");
                                         jeu[x][y] = NULL;
-                                        //cont = 0;
+                                        cont = 0;
                                 }
                                 peut_attaquer(i, &unite_horde, unite_tour, jeu);
-                        } 
+                        }
                         else {
-                                //printf ("Plus de horde");
+                                printf ("Pas de horde\n");
                         }
                         i++;
-                        printf("je suis encore là\n");
                 } else {
                         prepareAllSpriteDuJeu(jeu,newchemin,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, newcases);
                         //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
@@ -167,18 +124,10 @@ printf("%d\n", nbcase);
                         }
                         else if (random >= 5 && random <= 60 && tailleListe(newunite_tour) < 5) {
                                 newunite_tour = creer_rand_tour(jeu, newchemin, newunite_tour, random, nbcase);
-                                printf("------------------------------------------------------------------------------------\n");
-                                affiche_liste(newunite_tour);
-                                printf("------------------------------------------------------------------------------------\n");
 
                         }
                         if (newunite_horde != NULL) {
-                                printf("jsuis encore la bb %d\n", i);
                                 deplacer_horde(jeu, newchemin, newunite_horde, newcases);
-                                Tunite *ded = jeu[0][5];
-                                if (ded != NULL){
-                                         printf("REGARDE LA ESPECE DE NULLOS %d\n", ded->pointsDeVie);
-                                }
                                 TListePlayer a_portee = quiEstAPortee(jeu, newunite_horde->pdata);
                                 if (a_portee != NULL) {
                                         printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, newunite_horde->pdata->nom, newunite_horde->pdata->pointsDeVie);
@@ -197,34 +146,15 @@ printf("%d\n", nbcase);
                                         tempo = tempo->suiv;
                                     }
                                     jeu[posroix][posroiy] = NULL;
-                                    //cont = 0;
+                                    cont = 0;
                                 }
                                 peut_attaquer(i, &newunite_horde, newunite_tour, jeu);
                         } else {
-                                printf ("Plus de horde");
+                                printf ("Pas de horde\n");
                         }
                         i++;
                 }
 
-                    //a supprimer, c'est juste pour attirer votre attention sur comment est g r  le chemin (un tableau 2D de coordonn es)(regarder le corps de afficheCoordonneesParcours)
-                    //afficheCoordonneesParcours(tabParcours,NBCOORDPARCOURS);
-
-                    /* dans votre fonction "combat" que vous appelerez ici, dans son code utiliser dessineAttaque
-
-                    //exemple d'appel de dessineAttaque (factice car les unit s n'appartiennent pas ici   aucune liste d'unit  (ni   la horde ni au Roi)
-                    // c'est juste pour la d mo, a supprimer donc
-                    */
-                    /* démo d'utilisation de dessineAttaque, a supprimer
-                    if (unique % 10 == 0) {
-                            printf("dessine Attaque %d\n", unique);
-                            dessineAttaque(pWinSurf, creeTourAir(4,15),creeDragon(5,17));
-                            dessineAttaque(pWinSurf, creeDragon(5,17),creeTourRoi(4,1));
-                    } else printf("dessine Attaque %d\n", unique);
-                    unique++;
-                    */
-                    // utiliser dessineAttaque dans votre fonction de combat va vous obliger   ajouter un argument li    la SDL
-                    // -> SDL_Surface *surface
-                    // regarder le prototype de dessineAttaque dans maSDL.c pour (mieux) comprendre
 
                     /*                                                                     */
                     /*                                                                     */
@@ -246,10 +176,7 @@ printf("%d\n", nbcase);
                         libererListe(&newunite_horde, jeu);
                         libererListe(&newunite_tour, jeu);
                         newchemin = chargerseq(jeu, &newunite_horde, &newunite_tour, &newcases);
-
-                        printf("le nouveau chemin a été créé\n");
                         ischarged = true;
-                        printf("j'ai réussi a changer le bool\n");
                         i = 0;
 
                         //Ne pas modifiez les 4 lignes ci-dessous
@@ -267,9 +194,7 @@ printf("%d\n", nbcase);
                         libererListe(&newunite_horde, jeu);
                         libererListe(&newunite_tour, jeu);
                         newchemin = chargerbin(jeu, &newunite_horde, &newunite_tour, &newcases);
-                        printf("le nouveau chemin a été créé\n");
                         ischarged = true;
-                        printf("j'ai réussi a changer le bool\n");
                         i = 0;
 
                         //Ne pas modifiez les 4 lignes ci-dessous

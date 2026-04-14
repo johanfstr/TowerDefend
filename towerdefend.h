@@ -98,4 +98,6 @@ void libererListe(TListePlayer *liste, TplateauJeu jeu);
 int sauvegarderbin(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase);
 int** chargerbin(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *nbcase);
 
+
+
 #endif // TOWERDEFEND_H_INCLUDED
