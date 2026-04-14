@@ -70,168 +70,153 @@ int main(int argc, char* argv[]){
 
     /* // FIN de vos variables */
     /********************************************************************/
-
-
-            // boucle principale du jeu
-            int cont = 1;
-            while ( cont != 0 ){   //VOUS DEVEZ GERER (DETECTER) LA FIN DU JEU -> tourRoiDetruite
-                    SDL_Event event;
-                    while (SDL_PollEvent(&event)){
-                            if (event.type == SDL_QUIT){
-                                    cont = 0;
-                            }
-                    }
-                    //SDL_PumpEvents(); //do events
-                    efface_fenetre(pWinSurf);
-                    prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
-
-                    /***************************** début de nos fonctions ***********************************/
-
-                    if (ischarged == false){
-                         //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
-                         int random = rand() % 101;
-                         if (random >= 15 && random <= 50) {
-                                unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde, random);
-                        }
-                        else if (random >= 5 && random <= 60 && tailleListe(unite_tour) < 5) {
-                                unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, random, nbcase);
-                        }
-                        if (unite_horde != NULL) {
-                                deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
-                                TListePlayer a_portee = quiEstAPortee(jeu, unite_horde->pdata);
-                                if (a_portee != NULL) {
-                                        printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
-                                }
-                                if (tourRoiDetruite(unite_tour)) {
-										printf(" ------------------ Fin du jeu -------------------\n");
-                                        printf("     Tour roi detruite, les hordes ont gagnés\n");
-										printf(" -------------------------------------------------\n");
-                                        jeu[x][y] = NULL;
-                                        cont = 0;
-                                }
-                                peut_attaquer(i, &unite_horde, unite_tour, jeu);
-                        }
-                        else {
-                                printf ("Pas de horde\n");
-                        }
-                        i++;
-                } else {
-                        prepareAllSpriteDuJeu(jeu,newchemin,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, newcases);
-                        //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
-                        int random = rand() % 101;
-                        if (random >= 15 && random <= 50) {
-                                newunite_horde = creer_rand_unite(jeu, newchemin, x, y, newunite_horde, random);
-                        }
-                        else if (random >= 5 && random <= 60 && tailleListe(newunite_tour) < 5) {
-                                newunite_tour = creer_rand_tour(jeu, newchemin, newunite_tour, random, nbcase);
-
-                        }
-                        if (newunite_horde != NULL) {
-                                deplacer_horde(jeu, newchemin, newunite_horde, newcases);
-                                TListePlayer a_portee = quiEstAPortee(jeu, newunite_horde->pdata);
-                                if (a_portee != NULL) {
-                                        printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, newunite_horde->pdata->nom, newunite_horde->pdata->pointsDeVie);
-                                }
-                                if (tourRoiDetruite(newunite_tour)) {
-                                    printf("Tour roi detruite\n");
-                                    TListePlayer tempo = newunite_tour;
-                                    int posroix = 0;
-                                    int posroiy = 0;
-                                    while (tempo != NULL){
-                                        if (tempo->pdata->nom == tourRoi){
-                                                posroix = tempo->pdata->posX;
-                                                posroiy = tempo->pdata->posY;
-                                                break;
-                                        }
-                                        tempo = tempo->suiv;
-                                    }
-                                    jeu[posroix][posroiy] = NULL;
-                                    cont = 0;
-                                }
-                                peut_attaquer(i, &newunite_horde, newunite_tour, jeu);
-                        } else {
-                                printf ("Pas de horde\n");
-                        }
-                        i++;
-                }
-
-
-                    /*                                                                     */
-                    /*                                                                     */
-                    // FIN DE VOS APPELS
-                    /***********************************************************************/
-                    //affichage du jeu   chaque tour
-                maj_fenetre(pWindow);
-                SDL_Delay(600);  //valeur du d lai   modifier  ventuellement
-
-
-                //LECTURE DE CERTAINES TOUCHES POUR LANCER LES RESTAURATIONS ET SAUVEGARDES
-                const Uint8* pKeyStates = SDL_GetKeyboardState(NULL);
-                if ( pKeyStates[SDL_SCANCODE_V] ){
-                        /* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
-
-                        // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        libererListe(&unite_horde, jeu);
-                        libererListe(&unite_tour, jeu);
-                        libererListe(&newunite_horde, jeu);
-                        libererListe(&newunite_tour, jeu);
-                        newchemin = chargerseq(jeu, &newunite_horde, &newunite_tour, &newcases);
-                        ischarged = true;
-                        i = 0;
-
-                        //Ne pas modifiez les 4 lignes ci-dessous
-                        efface_fenetre(pWinSurf);
-                        prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
-                        maj_fenetre(pWindow);
-                        SDL_Delay(400);
-                }
-                if ( pKeyStates[SDL_SCANCODE_C] ){
-                        /* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur C */
-
-                        // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        libererListe(&unite_horde, jeu);
-                        libererListe(&unite_tour, jeu);
-                        libererListe(&newunite_horde, jeu);
-                        libererListe(&newunite_tour, jeu);
-                        newchemin = chargerbin(jeu, &newunite_horde, &newunite_tour, &newcases);
-                        ischarged = true;
-                        i = 0;
-
-                        //Ne pas modifiez les 4 lignes ci-dessous
-                        efface_fenetre(pWinSurf);
-                        prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
-                        maj_fenetre(pWindow);
-                        SDL_Delay(300);
-                }
-                if ( pKeyStates[SDL_SCANCODE_D] ){
-                        /* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
-
-                        // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        sauvegarderseq(jeu, unite_horde, unite_tour, tabParcours, nbcase);
-
-                        //Ne pas modifiez les 4 lignes ci-dessous
-                        efface_fenetre(pWinSurf);
-                        prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
-                        maj_fenetre(pWindow);
-                        SDL_Delay(300);
-                }
-                if ( pKeyStates[SDL_SCANCODE_S] ){
-                        /* Ajouter vos appels de fonctions ci-dessous qd le joueur appyue sur S */
-
-                        // APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-                        sauvegarderbin(jeu, unite_horde, unite_tour, tabParcours, nbcase);
-
-                        //Ne pas modifiez les 4 lignes ci-dessous
-                        efface_fenetre(pWinSurf);
-                        prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
-                        maj_fenetre(pWindow);
-                        SDL_Delay(300);
-                }
-                if ( pKeyStates[SDL_SCANCODE_ESCAPE] ){
-                        cont = 0;  //sortie de la boucle
-                }
-
-        }
+	
+	// boucle principale du jeu
+	int cont = 1;
+	while ( cont != 0 ){   //VOUS DEVEZ GERER (DETECTER) LA FIN DU JEU -> tourRoiDetruite
+		SDL_Event event;
+		while (SDL_PollEvent(&event)){
+			if (event.type == SDL_QUIT){
+				cont = 0;
+			}
+		}
+		//SDL_PumpEvents(); //do events
+		efface_fenetre(pWinSurf);
+		prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
+		
+		/***************************** début de nos fonctions ***********************************/
+		if (ischarged == false){
+			//APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
+			int random = rand() % 101;
+			if (random >= 15 && random <= 50) {
+				unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde, random);
+			}
+			else if (random >= 5 && random <= 60 && tailleListe(unite_tour) < 5) {
+				unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, random, nbcase);
+			}
+			if (unite_horde != NULL) {
+				deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
+				TListePlayer a_portee = quiEstAPortee(jeu, unite_horde->pdata);
+				if (a_portee != NULL) {
+					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
+				}
+				if (tourRoiDetruite(unite_tour)) {
+					printf(" ------------------ Fin du jeu -------------------\n");
+					printf("     Tour roi detruite, les hordes ont gagnés\n");
+					printf(" -------------------------------------------------\n");
+					jeu[x][y] = NULL;
+					cont = 0;
+				}
+				peut_attaquer(i, &unite_horde, unite_tour, jeu);
+			}
+			else {
+				printf ("Pas de horde\n");
+			}
+			i++;
+		} else {
+			prepareAllSpriteDuJeu(jeu,newchemin,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, newcases);
+			//APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
+			int random = rand() % 101;
+			if (random >= 15 && random <= 50) {
+				newunite_horde = creer_rand_unite(jeu, newchemin, x, y, newunite_horde, random);
+			}
+			else if (random >= 5 && random <= 60 && tailleListe(newunite_tour) < 5) {
+				newunite_tour = creer_rand_tour(jeu, newchemin, newunite_tour, random, nbcase);
+			}
+			if (newunite_horde != NULL) {
+				deplacer_horde(jeu, newchemin, newunite_horde, newcases);
+				TListePlayer a_portee = quiEstAPortee(jeu, newunite_horde->pdata);
+				if (a_portee != NULL) {
+					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, newunite_horde->pdata->nom, newunite_horde->pdata->pointsDeVie);
+				}
+				if (tourRoiDetruite(newunite_tour)) {
+					printf("Tour roi detruite\n");
+					TListePlayer tempo = newunite_tour;
+					int posroix = 0;
+					int posroiy = 0;
+					while (tempo != NULL){
+						if (tempo->pdata->nom == tourRoi){
+							posroix = tempo->pdata->posX;
+							posroiy = tempo->pdata->posY;
+							break;
+						}
+						tempo = tempo->suiv;
+					}
+					jeu[posroix][posroiy] = NULL;
+					cont = 0;
+				}
+				peut_attaquer(i, &newunite_horde, newunite_tour, jeu);
+			} else {
+				printf ("Pas de horde\n");
+			}
+			i++;
+		}
+		// FIN DE VOS APPELS
+		/***********************************************************************/
+		//affichage du jeu   chaque tour
+		maj_fenetre(pWindow);
+		SDL_Delay(600);  //valeur du d lai   modifier  ventuellement
+		
+		//LECTURE DE CERTAINES TOUCHES POUR LANCER LES RESTAURATIONS ET SAUVEGARDES
+		const Uint8* pKeyStates = SDL_GetKeyboardState(NULL);
+		if ( pKeyStates[SDL_SCANCODE_V] ){
+			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
+			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
+			libererListe(&unite_horde, jeu);
+			libererListe(&unite_tour, jeu);
+			libererListe(&newunite_horde, jeu);
+			libererListe(&newunite_tour, jeu);
+			newchemin = chargerseq(jeu, &newunite_horde, &newunite_tour, &newcases);
+			ischarged = true;
+			i = 0;
+			
+			//Ne pas modifiez les 4 lignes ci-dessous
+			efface_fenetre(pWinSurf);
+			prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
+			maj_fenetre(pWindow);
+			SDL_Delay(400);
+		}
+		if ( pKeyStates[SDL_SCANCODE_C] ){
+			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur C */
+			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
+			libererListe(&unite_horde, jeu);
+			libererListe(&unite_tour, jeu);
+			libererListe(&newunite_horde, jeu);
+			libererListe(&newunite_tour, jeu);
+			newchemin = chargerbin(jeu, &newunite_horde, &newunite_tour, &newcases);
+			ischarged = true;
+			i = 0;
+			
+			//Ne pas modifiez les 4 lignes ci-dessous
+			efface_fenetre(pWinSurf);
+			prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
+			maj_fenetre(pWindow);
+			SDL_Delay(300);
+		}
+		if ( pKeyStates[SDL_SCANCODE_D] ){
+			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
+			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
+			sauvegarderseq(jeu, unite_horde, unite_tour, tabParcours, nbcase);
+			//Ne pas modifiez les 4 lignes ci-dessous
+			efface_fenetre(pWinSurf);
+			prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
+			maj_fenetre(pWindow);
+			SDL_Delay(300);
+		}
+		if ( pKeyStates[SDL_SCANCODE_S] ){
+			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appyue sur S */
+			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
+			sauvegarderbin(jeu, unite_horde, unite_tour, tabParcours, nbcase);
+			//Ne pas modifiez les 4 lignes ci-dessous
+			efface_fenetre(pWinSurf);
+			prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
+			maj_fenetre(pWindow);
+			SDL_Delay(300);
+		}
+		if ( pKeyStates[SDL_SCANCODE_ESCAPE] ){
+			cont = 0;  //sortie de la boucle
+			}
+		}
         //fin boucle du jeu
 
         SDL_FreeSurface(pSpriteTourSol); // Lib ration de la ressource occup e par le sprite
