@@ -13,7 +13,6 @@
 #define ENTREE2 "partiebin.bin"
 #define SORTIE2 "partiebin.bin"
 
-
 //Sauvegarde la partie dans un fichier binaire
 int sauvegarderbin(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase){
     FILE *f_out;
@@ -70,6 +69,7 @@ int sauvegarderbin(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int**
     return EXIT_SUCCESS;
 
 }
+
 //Charge le fichier binaire
 int** chargerbin(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *nbcase){
     FILE *f_in;
@@ -88,7 +88,7 @@ int** chargerbin(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *
         int len_nom = 0;
         fread(&len_nom, sizeof(int),1,f_in);
         printf("longueur nom pour unité %d = %d\n",i+1,len_nom);
-        char *nom_horde = (char*)malloc(sizeof(char)*len_nom);
+        char *nom_horde = (char*)malloc(sizeof(char)*len_nom + 1);
         for (int j=0; j<len_nom; j++){
             fread(&nom_horde[j], sizeof(char),1,f_in);
         }
@@ -159,7 +159,6 @@ int** chargerbin(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *
             printf("%c", nom_tour[j]);
         }
         printf(" ");
-
 
         int posX = 0;
         fread(&posX, sizeof(int),1,f_in);
@@ -281,7 +280,6 @@ int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int**
     }
     fprintf(f_out,";");
 
-
     //fermeture du fichier
     fclose(f_out);
     printf("Le fichier sortie.txt a ete cree, essayez de le lire avec un notepad++, gedit, etc.\n");
@@ -308,6 +306,7 @@ char* enumtochar(Tunite *unite){
             return "inconnu";
     }
 }
+
 //Charge le fichier sequentiel qui a ete sauvegarde
 int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *nbcase){
     FILE *f_in;

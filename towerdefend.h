@@ -33,7 +33,7 @@ typedef struct {
     //struct Tunite *cible;   //NULL si pas de cible. mettre à jour ce pointeur permet l'aninamtion (simpliste certe) du tir
     //non utilisé au final -> utiliser directement dessineAttaque
 
-    //int score_emplacement;  //un clin d'oeil pour suscister une idée de tri
+    int score_emplacement;  
 } Tunite;
 
 typedef struct T_cell{
@@ -43,9 +43,6 @@ typedef struct T_cell{
 
 
 typedef Tunite* ** TplateauJeu;  ////tableau a deux dimensions de largeur 11 et hauteur 19 contenant des pointeurs (Tunite*)
-
-
-
 
 TplateauJeu AlloueTab2D(int largeur, int hauteur);
 void afficheCoordonneesParcours(int **t, int nbcoord);
@@ -59,45 +56,34 @@ Tunite *creeTourSol(int posx, int posy);
 Tunite *creeTourAir(int posx, int posy);
 Tunite *creeTourRoi(int posx, int posy);
 
-
-
-bool tourRoiDetruite(TListePlayer player);
-void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu);
-
-TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante) ; //retourne la liste des cibles possibles
-void combat(int i, Tunite * UniteAttaquante, Tunite * UniteCible);  //qui utilise dessineAttaque (de maSDL.h)
-
 Tunite *creeArcher(int posx, int posy);
 Tunite *creeGargouille(int posx, int posy);
 Tunite *creeDragon(int posx, int posy);
 Tunite *creeChevalier(int posx, int posy);
 
-TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde);
 
-TListePlayer creerTour(TplateauJeu jeu, int **tabParcours, int nb_tour,int x, int y);
+// Nos fonctions de jeu
+
+TListePlayer creerhorde(TplateauJeu jeu, int x, int y, int nb_horde); //fonction de départ pour créer un nombre donné d'hordes
 TListePlayer creer_tour_roi(TplateauJeu jeu, int **tabParcours, int x, int y);
-void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde, int nbcase);
-void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite);
-void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
-void placer_Tour(TplateauJeu jeu , int **tabParcours,TListePlayer unite_tour);
-void peut_attaquer(int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible, TplateauJeu jeu);
-void tri_selection(TListePlayer *UniteAttaquante, int taille);
-void affiche_liste (TListePlayer player);
-int tailleListe(TListePlayer player);
-int tailletab(int **tab, int max);
-TListePlayer creer_rand_unite (TplateauJeu jeu,int **tabParcours, int x , int y, TListePlayer horde, int rand_unite);
-TListePlayer creer_rand_tour (TplateauJeu jeu,int **tabParcours, TListePlayer tour, int rand_tour, int nbcase);
+bool tourRoiDetruite(TListePlayer player); 
 
+void deplacer_horde(TplateauJeu jeu, int** tabParcours, TListePlayer horde, int nbcase); //déplace la horde d'une case sur le parcours, en vérifiant que la case d'arrivée est libre
 
-int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase);
-int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *newcase);
-char* enumtochar(Tunite *unite);
-void libererListe(TListePlayer *liste, TplateauJeu jeu);
+void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite); //supprime une unité de la liste avec son Tunite
+void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);   //ajoute une unité à la liste avec son Tunite
 
+void tri_selection(TListePlayer *UniteAttaquante, int taille);    //trie la liste des unités par leurs points de vie, du plus petit au plus grand, en échangeant leurs pointeurs
+void affiche_liste (TListePlayer player); //affiche la liste
+int tailleListe(TListePlayer player); //retourne le nombre d'unités dans la liste, en comptant seulement celles qui ont des points de vie > 0
 
-int sauvegarderbin(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase);
-int** chargerbin(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *nbcase);
+void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu);
+TListePlayer creer_rand_unite (TplateauJeu jeu,int **tabParcours, int x , int y, TListePlayer horde); // crée une unité aléatoire de la horde (archer, chevalier, dragon ou gargouille) et l'ajoute à la liste de la horde
+TListePlayer creer_rand_tour (TplateauJeu jeu,int **tabParcours, TListePlayer tour, int nbcase); // crée une tour aléatoirement (tourSol, tourAir) en utilisant le meilleur emplacement
+int score_emplacement(int** tabParcours, int nbcase, int x, int y); // calcule le score d'un emplacement pour une tour en fonction du nombre de cases du parcours qui sont à portée de la tour
 
-
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante) ; //retourne la liste des cibles possibles
+void combat(SDL_Surface *surface, int i, Tunite * UniteAttaquante, Tunite * UniteCible);  // gère le combat entre une unité attaquante et une unité cible selon la vitesse d'attaque
+void peut_attaquer(SDL_Surface *surface, int i, TListePlayer *UniteAttaquante, TListePlayer Unitecible, TplateauJeu jeu); //gère les attaques de toutes les unités des deux listes
 
 #endif // TOWERDEFEND_H_INCLUDED

@@ -9,5 +9,6 @@ int** chargerbin(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *
 int sauvegarderseq(TplateauJeu jeu, TListePlayer horde, TListePlayer tour, int** tabParcours, int nbcase);
 int** chargerseq(TplateauJeu jeu, TListePlayer *horde, TListePlayer *tour, int *newcase);
 char* enumtochar(Tunite *unite);
+void libererListe(TListePlayer *liste, TplateauJeu jeu);
 
 #endif // SAUVEGARDE_H_INCLUDED

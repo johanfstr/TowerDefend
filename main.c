@@ -85,14 +85,15 @@ int main(int argc, char* argv[]){
 		prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
 		
 		/***************************** début de nos fonctions ***********************************/
+
 		if (ischarged == false){
 			//APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
 			int random = rand() % 101;
 			if (random >= 15 && random <= 50) {
-				unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde, random);
+				unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde);
 			}
-			else if (random >= 5 && random <= 60 && tailleListe(unite_tour) < 5) {
-				unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, random, nbcase);
+			else if (random >= 5 && random <= 60 && tailleListe(unite_tour) < 15) {
+				unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, nbcase);
 			}
 			if (unite_horde != NULL) {
 				deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
@@ -100,6 +101,7 @@ int main(int argc, char* argv[]){
 				if (a_portee != NULL) {
 					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
 				}
+				peut_attaquer(pWinSurf, i, &unite_horde, unite_tour, jeu);
 				if (tourRoiDetruite(unite_tour)) {
 					printf(" ------------------ Fin du jeu -------------------\n");
 					printf("     Tour roi detruite, les hordes ont gagnés\n");
@@ -107,7 +109,6 @@ int main(int argc, char* argv[]){
 					jeu[x][y] = NULL;
 					cont = 0;
 				}
-				peut_attaquer(i, &unite_horde, unite_tour, jeu);
 			}
 			else {
 				printf ("Pas de horde\n");
@@ -118,10 +119,10 @@ int main(int argc, char* argv[]){
 			//APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
 			int random = rand() % 101;
 			if (random >= 15 && random <= 50) {
-				newunite_horde = creer_rand_unite(jeu, newchemin, x, y, newunite_horde, random);
+				newunite_horde = creer_rand_unite(jeu, newchemin, x, y, newunite_horde);
 			}
-			else if (random >= 5 && random <= 60 && tailleListe(newunite_tour) < 5) {
-				newunite_tour = creer_rand_tour(jeu, newchemin, newunite_tour, random, nbcase);
+			else if (random >= 5 && random <= 60 && tailleListe(newunite_tour) < 15) {
+				newunite_tour = creer_rand_tour(jeu, newchemin, newunite_tour, newcases);
 			}
 			if (newunite_horde != NULL) {
 				deplacer_horde(jeu, newchemin, newunite_horde, newcases);
@@ -129,8 +130,11 @@ int main(int argc, char* argv[]){
 				if (a_portee != NULL) {
 					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, newunite_horde->pdata->nom, newunite_horde->pdata->pointsDeVie);
 				}
+				peut_attaquer(pWinSurf,i, &newunite_horde, newunite_tour, jeu);
 				if (tourRoiDetruite(newunite_tour)) {
-					printf("Tour roi detruite\n");
+					printf(" ------------------ Fin du jeu -------------------\n");
+					printf("     Tour roi detruite, les hordes ont gagnés\n");
+					printf(" -------------------------------------------------\n");
 					TListePlayer tempo = newunite_tour;
 					int posroix = 0;
 					int posroiy = 0;
@@ -145,7 +149,6 @@ int main(int argc, char* argv[]){
 					jeu[posroix][posroiy] = NULL;
 					cont = 0;
 				}
-				peut_attaquer(i, &newunite_horde, newunite_tour, jeu);
 			} else {
 				printf ("Pas de horde\n");
 			}
@@ -155,7 +158,7 @@ int main(int argc, char* argv[]){
 		/***********************************************************************/
 		//affichage du jeu   chaque tour
 		maj_fenetre(pWindow);
-		SDL_Delay(600);  //valeur du d lai   modifier  ventuellement
+		SDL_Delay(100);  //valeur du d lai   modifier  ventuellement
 		
 		//LECTURE DE CERTAINES TOUCHES POUR LANCER LES RESTAURATIONS ET SAUVEGARDES
 		const Uint8* pKeyStates = SDL_GetKeyboardState(NULL);

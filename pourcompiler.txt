@@ -1,0 +1,8 @@
+Avec sdl2_local du Bureau des salles de tp
+gcc -std=c99 -g main.c maSDL.c towerdefend.c sauvegarde.c   -I"$HOME/sdl2_local/include/SDL2"   -L"$HOME/sdl2_local/lib"   -lSDL2 -o projet
+
+Avec le sdl2_local du dossier
+gcc -std=c99 -g main.c maSDL.c towerdefend.c sauvegarde.c   -I sdl2_local/include/SDL2   -L sdl2_local/lib   -lSDL2 -o projet
+
+Avec pc perso 
+gcc -std=c99 -Wall -g     main.c maSDL.c towerdefend.c sauvegarde.c    $(sdl2-config --cflags --libs)     -o projet
