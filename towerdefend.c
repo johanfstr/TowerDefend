@@ -606,8 +606,8 @@ void combat(SDL_Surface *surface, int i, Tunite *UniteAttaquante, Tunite *UniteC
     if (UniteAttaquante->cibleAttaquable != solEtAir) {
         if (UniteAttaquante->cibleAttaquable != UniteCible->maposition) return;
     }
-    // attaque tous les i tours selon la vitesse
-    if (i % 2 == 0) {
+    // attaque tous les 1 tours sur 2 et selon la vitesse (pour équilibrer le jeu)
+    if (i % 2 == 0) { // les tours également attaque une fois sur 2 
         UniteCible->pointsDeVie -= UniteAttaquante->degats; // on enlève les points de vie de la cible avec dégâts de l'attaquant
         //dessineAttaque(surface, UniteAttaquante, UniteCible); on a fait la fonction combat avec dessine attaque mais ça rame beaucoup donc on l'a commente
         printf("combat : %d attaque %d, PV restants : %d\n",

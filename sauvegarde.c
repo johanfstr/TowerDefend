@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "SDL.h"
 #include "towerdefend.h"
 #include "sauvegarde.h"
 #include <stdbool.h>

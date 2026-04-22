@@ -45,6 +45,10 @@ int main(int argc, char* argv[]){
     int x, y;
     int** tabParcours=initChemin(&nbcase, &x, &y); //tabParcours est un tableau de NBCOORDPARCOURS cases, chacune contenant un tableau 2 cases (indice 0 pour X, indice 1 pour Y)
 
+
+	// on initialise ici pour le free en dehors du if
+	int** newchemin = NULL;  //initialisation pour éviter un warning, sera réalloué dans chargerbin et charge seq
+
     if ( pSpriteTourSol ) //si le permier sprite a bien t charg , on suppose que les autres aussi
     {
     TplateauJeu jeu = AlloueTab2D(LARGEURJEU,HAUTEURJEU);
@@ -58,15 +62,14 @@ int main(int argc, char* argv[]){
     /**********************************************************************/
     /*DEFINISSEZ/INITIALISER ICI VOS VARIABLES */
 
-    srand(time(NULL));
-    bool ischarged = false;
-    TListePlayer newunite_horde = NULL;
-    TListePlayer newunite_tour = NULL;
-    int** newchemin = NULL;  //initialisation pour éviter un warning, sera réalloué dans chargerbin et charge seq
-    int newcases = 0;
-    int i = 0;
-    TListePlayer unite_horde = NULL;
-    TListePlayer unite_tour = creer_tour_roi(jeu,tabParcours, x, y); //Créer la tour roi
+    srand(time(NULL)); // initialiser les nombres aléatoires
+    bool ischarged = false; // différencie entre la partie non chargée (false) et la partie chargée avec la sauvegarde (true)
+    TListePlayer newunite_horde = NULL; // intialise la nouvelle liste d'horde pour la sauvergarde chargée
+    TListePlayer newunite_tour = NULL; // intialise la nouvelle liste de tour pour la sauvergarde chargée
+    int newcases = 0; // initialisation du nombre de cases du chemin de la sauvegarde chargée
+    int i = 0; // compteur de chaque itération de la boucle du jeu pour faire le combat tour par tour
+    TListePlayer unite_horde = NULL; // intialise la liste des hordes
+    TListePlayer unite_tour = creer_tour_roi(jeu,tabParcours, x, y); //Créer la tour roi et intialise la liste des tours
 
     /* // FIN de vos variables */
     /********************************************************************/
@@ -86,59 +89,59 @@ int main(int argc, char* argv[]){
 		
 		/***************************** début de nos fonctions ***********************************/
 
-		if (ischarged == false){
+		if (ischarged == false){ // si la sauvergarde n'est pas encore chargée
 			//APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
 			int random = rand() % 101;
-			if (random >= 15 && random <= 50) {
+			if (random >= 15 && random <= 50) { // entre 15 et 50% de chance de créer une unité de la horde
 				unite_horde = creer_rand_unite(jeu, tabParcours, x, y, unite_horde);
 			}
-			else if (random >= 5 && random <= 60 && tailleListe(unite_tour) < 15) {
+			else if (random >= 5 && random <= 60 && tailleListe(unite_tour) < 11) { // entre 5 et 60% de chance de créer une tour
 				unite_tour = creer_rand_tour(jeu, tabParcours, unite_tour, nbcase);
 			}
-			if (unite_horde != NULL) {
-				deplacer_horde(jeu, tabParcours, unite_horde, nbcase);
-				TListePlayer a_portee = quiEstAPortee(jeu, unite_horde->pdata);
-				if (a_portee != NULL) {
+			if (unite_horde != NULL) { // tant que la liste des hordes n'est pas vide
+				deplacer_horde(jeu, tabParcours, unite_horde, nbcase); // les hordes avancent d'une case sur le chemin
+				TListePlayer a_portee = quiEstAPortee(jeu, unite_horde->pdata); // on récup la liste des hordes à portée des tours
+				if (a_portee != NULL) {// pour afficher leurs pv
 					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
 				}
-				peut_attaquer(pWinSurf, i, &unite_horde, unite_tour, jeu);
-				if (tourRoiDetruite(unite_tour)) {
+				peut_attaquer(pWinSurf, i, &unite_horde, unite_tour, jeu); // les hordes attaquent la tourRoi et les tours attaquent les hordes à portée
+				if (tourRoiDetruite(unite_tour)) { // si la tour roi est détruite, fin du jeu
 					printf(" ------------------ Fin du jeu -------------------\n");
 					printf("     Tour roi detruite, les hordes ont gagnés\n");
 					printf(" -------------------------------------------------\n");
 					jeu[x][y] = NULL;
-					cont = 0;
+					cont = 0; // on met cont à 0 pour sortir de la boucle du jeu
 				}
 			}
 			else {
-				printf ("Pas de horde\n");
+				printf ("Pas de horde\n"); // pour débug pour afficher que le jeu continue même sans horde
 			}
-			i++;
-		} else {
+			i++; // on incrémente le compteur d'un tour
+		} else { // si la sauvergarde est chargée, on utilise les nouvelles variables chargées
 			prepareAllSpriteDuJeu(jeu,newchemin,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, newcases);
 			//APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
 			int random = rand() % 101;
-			if (random >= 15 && random <= 50) {
+			if (random >= 15 && random <= 50) { // entre 15 et 50% de chance de créer une unité de la horde
 				newunite_horde = creer_rand_unite(jeu, newchemin, x, y, newunite_horde);
 			}
-			else if (random >= 5 && random <= 60 && tailleListe(newunite_tour) < 15) {
+			else if (random >= 5 && random <= 60 && tailleListe(newunite_tour) < 11) { // entre 5 et 60% de chance de créer une tour
 				newunite_tour = creer_rand_tour(jeu, newchemin, newunite_tour, newcases);
 			}
-			if (newunite_horde != NULL) {
-				deplacer_horde(jeu, newchemin, newunite_horde, newcases);
-				TListePlayer a_portee = quiEstAPortee(jeu, newunite_horde->pdata);
+			if (newunite_horde != NULL) { // tant que la liste des hordes n'est pas vide
+				deplacer_horde(jeu, newchemin, newunite_horde, newcases); // les hordes avancent d'une case sur le chemin
+				TListePlayer a_portee = quiEstAPortee(jeu, newunite_horde->pdata); // on récup la liste des hordes à portée des tours
 				if (a_portee != NULL) {
 					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, newunite_horde->pdata->nom, newunite_horde->pdata->pointsDeVie);
 				}
-				peut_attaquer(pWinSurf,i, &newunite_horde, newunite_tour, jeu);
-				if (tourRoiDetruite(newunite_tour)) {
+				peut_attaquer(pWinSurf,i, &newunite_horde, newunite_tour, jeu); // les hordes attaquent la tourRoi et les tours attaquent les hordes à portée
+				if (tourRoiDetruite(newunite_tour)) { // si la tour roi est détruite, fin du jeu
 					printf(" ------------------ Fin du jeu -------------------\n");
 					printf("     Tour roi detruite, les hordes ont gagnés\n");
 					printf(" -------------------------------------------------\n");
 					TListePlayer tempo = newunite_tour;
 					int posroix = 0;
 					int posroiy = 0;
-					while (tempo != NULL){
+					while (tempo != NULL){ // pour récupérer les coordonnées de la tour roi pour la supprimer du plateau
 						if (tempo->pdata->nom == tourRoi){
 							posroix = tempo->pdata->posX;
 							posroiy = tempo->pdata->posY;
@@ -146,8 +149,8 @@ int main(int argc, char* argv[]){
 						}
 						tempo = tempo->suiv;
 					}
-					jeu[posroix][posroiy] = NULL;
-					cont = 0;
+					jeu[posroix][posroiy] = NULL; // on supprime la tour roi du plateau
+					cont = 0; // on met cont à 0 pour sortir de la boucle du jeu
 				}
 			} else {
 				printf ("Pas de horde\n");
@@ -165,13 +168,15 @@ int main(int argc, char* argv[]){
 		if ( pKeyStates[SDL_SCANCODE_V] ){
 			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
 			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
+			// on free les listes pour éviter les fuites mémoires avant de charger la sauvegarde
 			libererListe(&unite_horde, jeu);
 			libererListe(&unite_tour, jeu);
 			libererListe(&newunite_horde, jeu);
 			libererListe(&newunite_tour, jeu);
-			newchemin = chargerseq(jeu, &newunite_horde, &newunite_tour, &newcases);
-			ischarged = true;
-			i = 0;
+			// on récupère les variables de la sauvegarde chargée dans les nouvelles variables
+			newchemin = chargerseq(jeu, &newunite_horde, &newunite_tour, &newcases); // on récupère le chemin de la sauvegarde chargée
+			ischarged = true; // on met true pour différencier avec la partie non chargée
+			i = 0; // on remet le compteur à 0
 			
 			//Ne pas modifiez les 4 lignes ci-dessous
 			efface_fenetre(pWinSurf);
@@ -182,13 +187,15 @@ int main(int argc, char* argv[]){
 		if ( pKeyStates[SDL_SCANCODE_C] ){
 			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur C */
 			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
+			// on free les listes pour éviter les fuites mémoires avant de charger la sauvegarde
 			libererListe(&unite_horde, jeu);
 			libererListe(&unite_tour, jeu);
 			libererListe(&newunite_horde, jeu);
 			libererListe(&newunite_tour, jeu);
-			newchemin = chargerbin(jeu, &newunite_horde, &newunite_tour, &newcases);
-			ischarged = true;
-			i = 0;
+			// on récupère les variables de la sauvegarde chargée dans les nouvelles variables
+			newchemin = chargerbin(jeu, &newunite_horde, &newunite_tour, &newcases); // on récupère le chemin de la sauvegarde chargée
+			ischarged = true; // on met true pour différencier avec la partie non chargée
+			i = 0; // on remet le compteur à 0
 			
 			//Ne pas modifiez les 4 lignes ci-dessous
 			efface_fenetre(pWinSurf);
@@ -199,7 +206,7 @@ int main(int argc, char* argv[]){
 		if ( pKeyStates[SDL_SCANCODE_D] ){
 			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appuye sur D */
 			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-			sauvegarderseq(jeu, unite_horde, unite_tour, tabParcours, nbcase);
+			sauvegarderseq(jeu, unite_horde, unite_tour, tabParcours, nbcase); // on sauvegarde la partie en cours dans un fichier de sauvegarde séquentielle
 			//Ne pas modifiez les 4 lignes ci-dessous
 			efface_fenetre(pWinSurf);
 			prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
@@ -209,7 +216,7 @@ int main(int argc, char* argv[]){
 		if ( pKeyStates[SDL_SCANCODE_S] ){
 			/* Ajouter vos appels de fonctions ci-dessous qd le joueur appyue sur S */
 			// APPELEZ ICI VOTRE FONCTION DE SAUVEGARDE/RESTAURATION DEMANDEE
-			sauvegarderbin(jeu, unite_horde, unite_tour, tabParcours, nbcase);
+			sauvegarderbin(jeu, unite_horde, unite_tour, tabParcours, nbcase); // on sauvegarde la partie en cours dans un fichier de sauvegarde binaire
 			//Ne pas modifiez les 4 lignes ci-dessous
 			efface_fenetre(pWinSurf);
 			prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf, nbcase);
@@ -241,5 +248,6 @@ int main(int argc, char* argv[]){
     SDL_DestroyWindow(pWindow);
     SDL_Quit();
     freeChemin(tabParcours);
+	//freeChemin(newchemin); on l'a enlevé car il fait un segmentfault quand on ferme le programme
     return 0;
 }
