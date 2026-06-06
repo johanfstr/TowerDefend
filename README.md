@@ -36,7 +36,7 @@ Tower Defend est un jeu automatique dans lequel des unités assaillantes (la **H
 ├── towerdefend.c       # Noyau du jeu (logique, combats, déplacements)
 ├── maSDL.c             # Interface graphique SDL2
 ├── sauvegarde.c        # Sauvegarde/restauration binaire et séquentielle
-└── sdl2_local/         # Bibliothèque SDL2 locale (salles TP)
+└── sdl2_local/         # Bibliothèque SDL2 locale
 ```
 
 ---
