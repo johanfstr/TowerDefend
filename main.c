@@ -8,35 +8,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL.h>
 
 /*--------- Main ---------------------*/
 int main(int argc, char* argv[]){
     SDL_Window *pWindow;
     SDL_Init(SDL_INIT_VIDEO);
 
-    pWindow = SDL_CreateWindow(
-    "Appuyez sur ECHAP pour quitter, S/C ET D/V les gerer les sauvegardes",
+int largeurFenetre = (LARGEURJEU + HAUTEURJEU) * (TILE_ISO_W/2) + TILE_ISO_W;
+int hauteurFenetre = (LARGEURJEU + HAUTEURJEU) * (TILE_ISO_H/2) + TILE_PIXEL_SIZE + 40;
+
+pWindow = SDL_CreateWindow(
+    "Appuyez sur ECHAP pour quitter, S/C ET D/V pour gerer les sauvegardes",
     SDL_WINDOWPOS_UNDEFINED,
     SDL_WINDOWPOS_UNDEFINED,
-    LARGEURJEU*40,
-    HAUTEURJEU*40,
+    largeurFenetre,
+    hauteurFenetre,
     SDL_WINDOW_SHOWN
-    );
+);
 
     //SDL_Renderer * renderer = SDL_CreateRenderer(pWindow, -1, 0); //non utilis , pour m moire
 
     SDL_Surface* pWinSurf = SDL_GetWindowSurface(pWindow); //le sprite qui couvre tout l' cran
-    SDL_Surface* pSpriteTourSol = SDL_LoadBMP("./data/TourSol.bmp"); //indice 0 dans tabSprite (via l'enum TuniteDuJeu)
-    SDL_Surface* pSpriteTourAir = SDL_LoadBMP("./data/TourAir.bmp"); //indice 1 dans tabSprite (via l'enum TuniteDuJeu)
-    SDL_Surface* pSpriteTourRoi = SDL_LoadBMP("./data/TourRoi.bmp"); //indice 2
-    SDL_Surface* pSpriteArcher = SDL_LoadBMP("./data/Archer.bmp"); //indice 3
-    SDL_Surface* pSpriteChevalier = SDL_LoadBMP("./data/Chevalier.bmp"); //indice 4
-    SDL_Surface* pSpriteDragon = SDL_LoadBMP("./data/Dragon.bmp"); //indice 5
-    SDL_Surface* pSpriteGargouille = SDL_LoadBMP("./data/Gargouille.bmp"); //indice 6
-    SDL_Surface* pSpriteEau = SDL_LoadBMP("./data/Eau.bmp"); //indice 7 Ne figure pas dans l'enum TuniteDuJeu
-    SDL_Surface* pSpriteHerbe = SDL_LoadBMP("./data/Herbe.bmp"); //indice 8 idem
-    SDL_Surface* pSpritePont = SDL_LoadBMP("./data/Pont.bmp"); //indice 9 idem
-    SDL_Surface* pSpriteTerre = SDL_LoadBMP("./data/Terre.bmp"); //indice 10 idem
+    SDL_Surface* pSpriteTourSol = SDL_LoadBMP("./data_iso/TourSol.bmp"); //indice 0 dans tabSprite (via l'enum TuniteDuJeu)
+    SDL_Surface* pSpriteTourAir = SDL_LoadBMP("./data_iso/TourAir.bmp"); //indice 1 dans tabSprite (via l'enum TuniteDuJeu)
+    SDL_Surface* pSpriteTourRoi = SDL_LoadBMP("./data_iso/TourRoi.bmp"); //indice 2
+    SDL_Surface* pSpriteArcher = SDL_LoadBMP("./data_iso/Archer.bmp"); //indice 3
+    SDL_Surface* pSpriteChevalier = SDL_LoadBMP("./data_iso/Chevalier.bmp"); //indice 4
+    SDL_Surface* pSpriteDragon = SDL_LoadBMP("./data_iso/Dragon.bmp"); //indice 5
+    SDL_Surface* pSpriteGargouille = SDL_LoadBMP("./data_iso/Gargouille.bmp"); //indice 6
+    SDL_Surface* pSpriteEau = SDL_LoadBMP("./data_iso/Eau.bmp"); //indice 7 Ne figure pas dans l'enum TuniteDuJeu
+    SDL_Surface* pSpriteHerbe = SDL_LoadBMP("./data_iso/Herbe.bmp"); //indice 8 idem
+    SDL_Surface* pSpritePont = SDL_LoadBMP("./data_iso/Pont.bmp"); //indice 9 idem
+    SDL_Surface* pSpriteTerre = SDL_LoadBMP("./data_iso/Terre.bmp"); //indice 10 idem
+
+SDL_SetColorKey(pSpriteHerbe,      SDL_TRUE, SDL_MapRGB(pSpriteHerbe->format,      255, 0, 255));
+SDL_SetColorKey(pSpriteTerre,      SDL_TRUE, SDL_MapRGB(pSpriteTerre->format,      255, 0, 255));
+SDL_SetColorKey(pSpriteEau,        SDL_TRUE, SDL_MapRGB(pSpriteEau->format,        255, 0, 255));
+SDL_SetColorKey(pSpritePont,       SDL_TRUE, SDL_MapRGB(pSpritePont->format,       255, 0, 255));
+SDL_SetColorKey(pSpriteArcher,     SDL_TRUE, SDL_MapRGB(pSpriteArcher->format,     255, 0, 255));
+SDL_SetColorKey(pSpriteChevalier,  SDL_TRUE, SDL_MapRGB(pSpriteChevalier->format,  255, 0, 255));
+SDL_SetColorKey(pSpriteDragon,     SDL_TRUE, SDL_MapRGB(pSpriteDragon->format,     255, 0, 255));
+SDL_SetColorKey(pSpriteGargouille, SDL_TRUE, SDL_MapRGB(pSpriteGargouille->format, 255, 0, 255));
+SDL_SetColorKey(pSpriteTourSol,    SDL_TRUE, SDL_MapRGB(pSpriteTourSol->format,    255, 0, 255));
+SDL_SetColorKey(pSpriteTourAir,    SDL_TRUE, SDL_MapRGB(pSpriteTourAir->format,    255, 0, 255));
+SDL_SetColorKey(pSpriteTourRoi,    SDL_TRUE, SDL_MapRGB(pSpriteTourRoi->format,    255, 0, 255));
 
     // ASTUCE : on stocke le sprite d'une unit l'indice de son nom dans le type enum TuniteDuJeu, dans le tableau TabSprite
     // SAUF pour l'Eau, l''herbe et le pont qui apparaitront en l absence d'unit (NULL dans le plateau) et en foction de certains indices x,y d finissant le chemin central
@@ -102,7 +119,7 @@ int main(int argc, char* argv[]){
 				deplacer_horde(jeu, tabParcours, unite_horde, nbcase); // les hordes avancent d'une case sur le chemin
 				TListePlayer a_portee = quiEstAPortee(jeu, unite_horde->pdata); // on récup la liste des hordes à portée des tours
 				if (a_portee != NULL) {// pour afficher leurs pv
-					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, unite_horde->pdata->nom, unite_horde->pdata->pointsDeVie);
+					printf("///// Tour roi : %d\n", a_portee->pdata->pointsDeVie);
 				}
 				peut_attaquer(pWinSurf, i, &unite_horde, unite_tour, jeu); // les hordes attaquent la tourRoi et les tours attaquent les hordes à portée
 				if (tourRoiDetruite(unite_tour)) { // si la tour roi est détruite, fin du jeu
@@ -131,7 +148,7 @@ int main(int argc, char* argv[]){
 				deplacer_horde(jeu, newchemin, newunite_horde, newcases); // les hordes avancent d'une case sur le chemin
 				TListePlayer a_portee = quiEstAPortee(jeu, newunite_horde->pdata); // on récup la liste des hordes à portée des tours
 				if (a_portee != NULL) {
-					printf("Tour roi : %d     PV %d : %d\n", a_portee->pdata->pointsDeVie, newunite_horde->pdata->nom, newunite_horde->pdata->pointsDeVie);
+					printf("///// Tour roi : %d\n", a_portee->pdata->pointsDeVie);
 				}
 				peut_attaquer(pWinSurf,i, &newunite_horde, newunite_tour, jeu); // les hordes attaquent la tourRoi et les tours attaquent les hordes à portée
 				if (tourRoiDetruite(newunite_tour)) { // si la tour roi est détruite, fin du jeu

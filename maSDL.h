@@ -5,6 +5,11 @@
 #ifndef MASDL_H_INCLUDED
 #define MASDL_H_INCLUDED
 
+#define TILE_PIXEL_SIZE 64                 
+#define TILE_ISO_W TILE_PIXEL_SIZE
+#define TILE_ISO_H (TILE_PIXEL_SIZE / 2)   
+
+void isoCoords(int i, int j, int largeur, int hauteur, int *sx, int *sy);
 
 
 

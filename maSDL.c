@@ -1,6 +1,7 @@
 #include "SDL.h"
 #include "maSDL.h"
 #include "towerdefend.h"
+#include <SDL2/SDL_messagebox.h>
 
 void message(char *myTitle, char *myMessage){
         const SDL_MessageBoxButtonData buttons[] = {
@@ -46,22 +47,32 @@ void message(char *myTitle, char *myMessage){
 
 void apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destination )
 {
-    SDL_Rect offset;
+    SDL_Rect dest;
+    dest.x = x;
+    dest.y = y;
+    dest.w = TILE_PIXEL_SIZE;
+    dest.h = TILE_PIXEL_SIZE;
 
-    offset.x = x;
-    offset.y = y;
-
-    //On blitte la surface
-    SDL_BlitSurface( source, NULL, destination, &offset );
+    SDL_BlitScaled( source, NULL, destination, &dest ); // au lieu de SDL_BlitSurface
 }
 
 void clear_surface(SDL_Surface *psurf){
-        Uint32 color = SDL_MapRGB(psurf->format,0,0,0);
-        SDL_FillRect(psurf,NULL, color);
+        Uint32 color = SDL_MapRGB(psurf->format, 30, 90, 160); // bleu "mer", ajuste à ton goût
+        SDL_FillRect(psurf, NULL, color);
 }
 
-void prepare_sprite( int x, int y, SDL_Surface* source, SDL_Surface* destination ){
-    apply_surface( x, y, source, destination );
+void apply_surface_scaled(int x, int y, int w, int h, SDL_Surface* source, SDL_Surface* destination)
+{
+    SDL_Rect dest = { x, y, w, h };
+    SDL_BlitScaled(source, NULL, destination, &dest);
+}
+
+void prepare_sprite(int x, int y, SDL_Surface* source, SDL_Surface* destination){
+    apply_surface_scaled(x, y, TILE_PIXEL_SIZE, TILE_PIXEL_SIZE, source, destination); // unités/tours, carré
+}
+
+void prepare_sprite_sol(int x, int y, SDL_Surface* source, SDL_Surface* destination){
+    apply_surface_scaled(x, y, TILE_PIXEL_SIZE, TILE_ISO_H, source, destination); // sol, losange
 }
 
 void efface_fenetre(SDL_Surface *psurf){
@@ -72,6 +83,7 @@ void maj_fenetre(SDL_Window *pWindow){
     SDL_UpdateWindowSurface(pWindow);
 }
 
+/*
 void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int hauteur, SDL_Surface **TabSprite, SDL_Surface* destination, int nbcase){
 
     //On met de l'herbe partout
@@ -95,14 +107,52 @@ void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int haute
             }
         }
     }
-/*
-pour m�moire:
-prepare_sprite(i*40,j*40,TabSprite[9],destination); // pont
-prepare_sprite(i*40,j*40,TabSprite[7],destination); //eau
-prepare_sprite(i*40,j*40,TabSprite[10],destination); //terre
-prepare_sprite(i*40,j*40,TabSprite[8],destination); //herbe
-*/
+
 }
+*/
+void isoCoords(int i, int j, int largeur, int hauteur, int *sx, int *sy){
+    int origineX = hauteur * (TILE_ISO_W / 2); // évite que (i-j) sorte à gauche de l'écran
+    int origineY = 20;                          // petite marge en haut
+
+    *sx = origineX + (i - j) * (TILE_ISO_W / 2);
+    *sy = origineY + (i + j) * (TILE_ISO_H / 2);
+}
+
+void prepareAllSpriteDuJeu(TplateauJeu jeu, int** chemin, int largeur, int hauteur, SDL_Surface **TabSprite, SDL_Surface* destination, int nbcase){
+
+    // on marque les cases du chemin pour savoir où poser "terre" plutôt que "herbe"
+    int isChemin[largeur][hauteur];
+    for (int i=0;i<largeur;i++)
+        for (int j=0;j<hauteur;j++)
+            isChemin[i][j] = 0;
+    for (int c=0;c<nbcase;c++)
+        isChemin[chemin[c][X]][chemin[c][Y]] = 1;
+
+    // parcours en diagonale (i+j croissant) = ordre arrière -> avant
+    // indispensable en iso pour que les cases "devant" recouvrent celles "derrière"
+    for (int d=0; d<largeur+hauteur-1; d++){
+        for (int i=0; i<largeur; i++){
+            int j = d - i;
+            if (j<0 || j>=hauteur) continue;
+
+            int sx, sy;
+            isoCoords(i, j, largeur, hauteur, &sx, &sy);
+
+            // sol
+if (isChemin[i][j])
+    prepare_sprite_sol(sx, sy, TabSprite[10], destination); // terre
+else
+    prepare_sprite_sol(sx, sy, TabSprite[8], destination);  // herbe
+
+            // unité éventuelle, légèrement remontée pour donner l'impression
+            // qu'elle est posée "sur" la case plutôt qu'à plat dedans
+            if (jeu[i][j] != NULL){
+                prepare_sprite(sx, sy - TILE_PIXEL_SIZE/4, TabSprite[jeu[i][j]->nom], destination);
+            }
+        }
+    }
+}
+
 
 void dessineAttaque(SDL_Surface *surface, Tunite *attaquant, Tunite *cible ){
     int x1 = (attaquant->posX+1)*40-20;

@@ -7,6 +7,8 @@
 #include <time.h>
 #include <string.h>
 #include "maSDL.h"
+#include <SDL2/SDL_surface.h>
+#include "sauvegarde.h"
 
 void affiche_liste (TListePlayer player){
     TListePlayer tmp = player;
@@ -554,11 +556,11 @@ void peut_attaquer(SDL_Surface *surface, int i, TListePlayer *UniteAttaquante, T
         TListePlayer taille = *UniteAttaquante;
         int tailleportee = tailleListe(a_portee); // taille de la liste a portée pour la parcourir
         if (tailleportee > 0){ // si la liste a_portee n'est pas vide
-            printf("unite a portee : ");
+            //printf("Liste pv à portée : ");
             tri_selection(UniteAttaquante, tailleListe(taille)); //on la trie
-            TListePlayer tmpPortee = *UniteAttaquante;
-            affiche_liste(tmpPortee);
-            printf("\n");
+            //TListePlayer tmpPortee = *UniteAttaquante;
+            //affiche_liste(tmpPortee);
+            //printf("\n");
         }
         if (a_portee != NULL) {// si la liste a_portee n'est pas vide
             // L'unité attaque la tour du roi
@@ -589,8 +591,9 @@ void peut_attaquer(SDL_Surface *surface, int i, TListePlayer *UniteAttaquante, T
         if (tmp->pdata->pointsDeVie <= 0) {
             //affiche_liste(a_portee);
             jeu[tmp->pdata->posX][tmp->pdata->posY] = NULL;
-            printf("une unite a ete detruite\n");
+            printf("unite detruite : ");
             affiche_liste(*UniteAttaquante);
+            printf("\n");
             supprimerUnite(UniteAttaquante, tmp->pdata);
         }
         tmp = suivant;
@@ -610,8 +613,8 @@ void combat(SDL_Surface *surface, int i, Tunite *UniteAttaquante, Tunite *UniteC
     if (i % 2 == 0) { // les tours également attaque une fois sur 2 
         UniteCible->pointsDeVie -= UniteAttaquante->degats; // on enlève les points de vie de la cible avec dégâts de l'attaquant
         //dessineAttaque(surface, UniteAttaquante, UniteCible); on a fait la fonction combat avec dessine attaque mais ça rame beaucoup donc on l'a commente
-        printf("combat : %d attaque %d, PV restants : %d\n",
-               UniteAttaquante->nom, UniteCible->nom, UniteCible->pointsDeVie);
+        printf("combat : %s attaque %s, PV restants : %d\n",
+               enumtochar(UniteAttaquante), enumtochar(UniteCible), UniteCible->pointsDeVie);
     }
 }
 
