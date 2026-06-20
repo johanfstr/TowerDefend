@@ -1,8 +1,16 @@
+# IDE
 .vscode/
-data_iso/
-emsdk/
+
+# Environnement
 env/
-*.wasm
+emsdk/
+
+# Build Emscripten
 *.js
-*.html
+*.wasm
 *.data
+*.html
+
+# Dossier build éventuel
+build/
+dist/
