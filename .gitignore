@@ -1,0 +1,8 @@
+.vscode/
+data_iso/
+emsdk/
+env/
+*.wasm
+*.js
+*.html
+*.data
